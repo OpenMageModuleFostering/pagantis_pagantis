@@ -3,7 +3,6 @@
     <?php $activeMethodEndOfMonth = Mage::getStoreConfig('payment/pagantis/end_of_month'); ?>
     <?php $discount = Mage::getStoreConfig('payment/pagantis/discount'); ?>
     <?php $activeMethodEndOfMonth = false; ?>
-    <?php $activeMethodLoan = Mage::getStoreConfig('payment/pagantis/url_pagantis_mastarde_activated'); ?>
 </fieldset>
 <div id="payment_form_<?php echo $_code ?>" style="display: none">
     <div id="innerpagantis">
@@ -12,14 +11,14 @@
 
                 <div class="PmtSimulator PmtSimulatorSelectable--claim" style="left:-10px; top: 5px;"
                 data-pmt-num-quota="4" data-pmt-style="neutral" data-pmt-type="3" data-pmt-discount="<?=$discount?>"
-                data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no"></div>
+                data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no" data-pmt-max-ins="12"></div>
 
                 <input type="radio" class="pagantisradio" name="paymentdetail[]" value="end_of_month">Paga a fin de mes<br />
         <?php else: ?>
             <input type="hidden" class="pagantisradio" name="paymentdetail[]" value="financiacion">
             <div class="PmtSimulator PmtSimulatorSelectable--claim" style="left:-10px; top: 5px;"
             data-pmt-num-quota="4" data-pmt-style="neutral" data-pmt-type="3" data-pmt-discount="<?=$discount?>"
-            data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no"></div>
+            data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no" data-pmt-max-ins="12"></div>
 
         <?php endif; ?>
 

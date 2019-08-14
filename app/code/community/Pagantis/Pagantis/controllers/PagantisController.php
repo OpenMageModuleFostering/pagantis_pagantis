@@ -82,7 +82,8 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
                 break;
         }
         $signature_check = sha1($key.$temp['account_id'].$temp['api_version'].$temp['event'].$temp['data']['id']);
-        if ($signature_check != $temp['signature'] ){
+        $signature_check_sha512 = hash('sha512',$key.$temp['account_id'].$temp['api_version'].$temp['event'].$temp['data']['id']);
+        if ($signature_check != $temp['signature'] && $signature_check_sha512 != $temp['signature']){
           //hack detected
           $this->cancelAction();
           return false;

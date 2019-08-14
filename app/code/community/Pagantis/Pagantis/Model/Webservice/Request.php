@@ -110,6 +110,7 @@ class Pagantis_Pagantis_Model_Webservice_Request
         $array['ok_url'] = $this->_urlOk;
         $array['nok_url'] = $this->_urlKo;
         $array['callback_url'] = $this->_callback_url;
+        $array['cancelled_url'] = $this->_urlCancel;
         $array['iframe'] = $this->_iframe;
         //$array['urlPagantis'] = $this->_urlPagantis;
         $array['discount[full]'] = $this->_discount;
@@ -119,10 +120,14 @@ class Pagantis_Pagantis_Model_Webservice_Request
         $array['phone'] = $this->_userData['phone'];
         $array['full_name'] = $this->_userData['full_name'];
         $array['email'] = $this->_userData['email'];
-        $array['address[street]'] = $this->_userData['street'];
-        $array['address[city]'] = $this->_userData['city'];
-        $array['address[province]'] = $this->_userData['province'];
-        $array['address[zipcode]'] = $this->_userData['zipcode'];
+        $array['address[street]'] = $this->_userData['Bstreet'];
+        $array['address[city]'] = $this->_userData['Bcity'];
+        $array['address[province]'] = $this->_userData['Bprovince'];
+        $array['address[zipcode]'] = $this->_userData['Bzipcode'];
+        $array['shipping[street]'] = $this->_userData['street'];
+        $array['shipping[city]'] = $this->_userData['city'];
+        $array['shipping[province]'] = $this->_userData['province'];
+        $array['shipping[zipcode]'] = $this->_userData['zipcode'];
         $array['dni'] = $this->_userData['dni'];
 
         foreach($this->_items as $key => $value){
@@ -217,6 +222,31 @@ class Pagantis_Pagantis_Model_Webservice_Request
             $this->_userData['full_name'] = $address->getFirstname() . ' ' . $address->getLastname();
             $this->_userData['email'] = $address->getEmail();
             $this->_userData['phone'] = $address->getTelephone();
+        } else {
+            throw new \Exception('Missing user data info');
+        }
+    }
+
+    /**
+     * Assign user data
+     * @param string $addressId
+     * @throws Exception
+     */
+    public function setUserBillData($addressId)
+    {
+        if ($addressId) {
+            $address = Mage::getModel('sales/order_address')->load($addressId);
+            $street = $address->getStreet();
+            if ($street){
+                $this->_userData['Bstreet'] = $street[0];
+            }
+            $this->_userData['Bcity'] = $address->getCity();
+            $this->_userData['Bprovince'] = $address->getCity();
+            $this->_userData['Bzipcode'] = $address->getPostcode();
+            $this->_userData['Bdni'] = $address->getVatId();
+            $this->_userData['Bfull_name'] = $address->getFirstname() . ' ' . $address->getLastname();
+            $this->_userData['Bemail'] = $address->getEmail();
+            $this->_userData['Bphone'] = $address->getTelephone();
         } else {
             throw new \Exception('Missing user data info');
         }
@@ -371,6 +401,20 @@ class Pagantis_Pagantis_Model_Webservice_Request
      * @param string $urlnok
      * @throws Exception
      */
+    public function setUrlCancelled($urlKo = '')
+    {
+        $urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
+        if (strlen(trim($urlCancel)) > 0) {
+            $this->_urlCancel = $urlCancel;
+        } else {
+            throw new \Exception('UrlKo not defined');
+        }
+    }
+
+    /**
+     * @param string $urlnok
+     * @throws Exception
+     */
     public function setCacllbackUrl()
     {
       if (Mage::app()->getStore()->isFrontUrlSecure()){
@@ -389,9 +433,11 @@ class Pagantis_Pagantis_Model_Webservice_Request
      */
     public function setFirma()
     {
-        $textToEncode = $this->_accountKey . $this->_accountCode . $this->_orderId . $this->_amount . $this->_currency  . $this->_urlOk . $this->_urlKo . $this->_callback_url . $this->_discount;
+        $textToEncode = $this->_accountKey . $this->_accountCode . $this->_orderId . $this->_amount . $this->_currency  . $this->_urlOk . $this->_urlKo . $this->_callback_url . $this->_discount. $this->_urlCancel;
         //encoding is SHA1
         $this->_firma = sha1($textToEncode);
+        //encoding is SHA512
+        $this->_firma = hash('sha512',$textToEncode);
         /*
         if (strlen(trim($textToEncode)) > 0) {
             // Retrieve del SHA1

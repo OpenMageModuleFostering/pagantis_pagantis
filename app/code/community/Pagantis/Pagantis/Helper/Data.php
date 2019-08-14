@@ -89,15 +89,16 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $language = $this->getConsumerLanguage($localeCode);
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
         $addressId = $order->getShippingAddress()->getId();
+        $addressBillingId = $order->getBillingAddress()->getId();
 
 
         $request = Mage::getModel('pagantis_pagantis/webservice_requestloan');
         $request->setOrderId($orderId);
         $request->setAmount($amount);
         $request->setLanguagePagantis($language);
-        //$request->setUrlPagantis($this->_config['url_pagantis_mastarde']);
         $request->setUrlPagantis (Pagantis_Pagantis_Model_Payment::PMT_URL);
         $request->setUserData($addressId);
+        $request->setUserBillData($addressBillingId);
         $request->setOrderItems($orderId);
         $request->setAmount($amount);
         $request->setDiscount($this->_config['discount']);
@@ -115,6 +116,7 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         }
         $request->setUrlOk();
         $request->setUrlKo();
+        $request->setUrlCancelled();
         $request->setCacllbackUrl();
         $request->setFirma();
         return $request;
@@ -133,15 +135,16 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $language = $this->getConsumerLanguage($localeCode);
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
         $addressId = $order->getShippingAddress()->getId();
+        $addressBillingId = $order->getBillingAddress()->getId();
 
 
         $request = Mage::getModel('pagantis_pagantis/webservice_requestloan');
         $request->setOrderId($orderId);
         $request->setAmount($amount);
         $request->setLanguagePagantis($language);
-        //$request->setUrlPagantis($this->_config['url_pagantis_mastarde']);
         $request->setUrlPagantis (Pagantis_Pagantis_Model_Payment::PMT_URL);
         $request->setUserData($addressId);
+        $request->setUserBillData($addressBillingId);
         $request->setOrderItems($orderId);
         $request->setAmount($amount);
         $request->setDiscount($this->_config['discount']);
@@ -159,6 +162,7 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         }
         $request->setUrlOk();
         $request->setUrlKo();
+        $request->setUrlCancelled();
         $request->setCacllbackUrl();
         $request->setFirma();
 
@@ -192,20 +196,7 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
 
 
     public function getUrlPagantis() {
-
         return Pagantis_Pagantis_Model_Payment::PMT_URL;
-        //allways same url, no need to make this check
-        /*
-        $paymentDetails = $this->_getCheckoutSession()->getPaymentMethodDetail();
-        switch($paymentDetails) {
-            case Pagantis_Pagantis_Model_Payment::PAYMENT_UNIQUE:
-                return $this->_config['url_pagantis'];
-                break;
-            case Pagantis_Pagantis_Model_Payment::PAYMENT_LOAN:
-                return $this->_config['url_pagantis_mastarde'];
-                break;
-        }
-        */
     }
 
     /**

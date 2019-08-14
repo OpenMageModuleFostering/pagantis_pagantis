@@ -58,8 +58,6 @@
                 <model>pagantis_pagantis/payment</model>
                 <order_status>1</order_status>
                 <title>Paga Mas Tarde</title>
-                <url_pagantis>https://psp.pagantis.com/2/charges</url_pagantis>
-                <url_pagantis_mastarde>https://pmt.pagantis.com/v1/installments</url_pagantis_mastarde>
                 <environment></environment>
                 <language_payment_page>ES</language_payment_page>
                 <auth_method>SHA1</auth_method>
