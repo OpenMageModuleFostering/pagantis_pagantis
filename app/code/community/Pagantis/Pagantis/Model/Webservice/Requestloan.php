@@ -182,7 +182,7 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         $array['billing[full_name]'] = $this->_userData['billing[full_name]'];
 
 
-        $array['metadata[module_version]'] = '3.3.1';
+        $array['metadata[module_version]'] = '3.3.2';
         $array['metadata[platform]'] = 'magento '. Mage::getVersion();
 
         return $array;
@@ -286,9 +286,9 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
             $addressesCollection->addAttributeToFilter('region', $state_name);
             $addressesCollection->addAttributeToFilter('street', array("like" => '%'.$this->_userData['shipping[street]'].'%'));
 
-            foreach ($addressesCollection as $address) {
-                $this->_userData['shipping[date_add]'] = $address->created_at;
-                $this->_userData['shipping[last_updated]'] = $address->updated_at;
+            foreach ($addressesCollection as $address_c) {
+                $this->_userData['shipping[date_add]'] = $address_c->created_at;
+                $this->_userData['shipping[last_updated]'] = $address_c->updated_at;
             }
 
             $address = $order->getBillingAddress();
@@ -333,9 +333,9 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
             $addressesCollection->addAttributeToFilter('region', $state_name);
             $addressesCollection->addAttributeToFilter('street', array("like" => '%'.$this->_userData['billing[street]'].'%'));
 
-            foreach ($addressesCollection as $address) {
-                $this->_userData['billing[date_add]'] = $address->created_at;
-                $this->_userData['billing[last_updated]'] = $address->updated_at;
+            foreach ($addressesCollection as $address_c) {
+                $this->_userData['billing[date_add]'] = $address_c->created_at;
+                $this->_userData['billing[last_updated]'] = $address_c->updated_at;
             }
 
             if ($order->getCustomerFirstname() == $address->getFirstname()
