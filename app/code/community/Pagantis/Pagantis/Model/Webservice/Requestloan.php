@@ -419,15 +419,19 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $urlnok
      * @throws Exception
      */
-    public function setUrlCancelled($urlKo = '')
-    {
-        $urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
-        if (strlen(trim($urlCancel)) > 0) {
-            $this->_urlCancel = $urlCancel;
-        } else {
-            throw new \Exception('UrlKo not defined');
-        }
-    }
+     public function setUrlCancelled($urlKo = '')
+     {
+         $urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
+         $have_params = strpos($urlCancel,'?');
+         if ($have_params !== false){
+           $urlCancel = substr($urlCancel,0,$have_params);
+         }
+         if (strlen(trim($urlCancel)) > 0) {
+             $this->_urlCancel = $urlCancel;
+         } else {
+             throw new \Exception('UrlKo not defined');
+         }
+     }
 
     /**
      * @param string $urlnok
