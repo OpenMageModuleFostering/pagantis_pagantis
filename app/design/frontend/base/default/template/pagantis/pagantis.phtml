@@ -1,0 +1,42 @@
+<fieldset class="form-list">
+    <?php $_code = $this->getMethodCode() ?>
+    <?php $activeMethodUnique = Mage::getStoreConfig('payment/pagantis/url_pagantis_activated'); ?>
+    <?php $activeMethodLoan = Mage::getStoreConfig('payment/pagantis/url_pagantis_mastarde_activated'); ?>
+</fieldset>
+<div id="payment_form_<?php echo $_code ?>" style="display: none">
+    <div id="innerpagantis">
+        <?php if($activeMethodUnique) : ?>
+            <?php if ($activeMethodLoan) :?>
+                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="unico" checked>Paga con cobro único<br />
+                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="financiacion">Financialo con Paga+Tarde<br />
+            <?php else : ?>
+                <input type="hidden" class="pagantisradio" name="paymentdetail[]" value="unico">
+            <?php endif; ?>
+        <?php else: ?>
+            <input type="hidden" class="pagantisradio" name="paymentdetail[]" value="financiacion">
+        <?php endif; ?>
+        <p>Paga
+                       <span id="int_amount"><?=round($this->instAmount(6),2)?></span> € / mes en
+                        <select style="width:50px" name="num_inst" id="num_inst" onChange="document.getElementById('int_amount').innerHTML=document.getElementById('instAmount'+this.value).innerHTML;" >
+                          <option value="6">6</option>
+                          <option value="5">5</option>
+                          <option value="4">4</option>
+                          <option value="3">3</option>
+                          <option value="2">2</option>
+                      </select> plazos </p>
+
+                      <div style="display:none" id="instAmount2"><?=round ($this->instAmount(2),2)?></div>
+                      <div style="display:none" id="instAmount3"><?=round ($this->instAmount(3),2)?></div>
+                      <div style="display:none" id="instAmount4"><?=round ($this->instAmount(4),2)?></div>
+                      <div style="display:none" id="instAmount5"><?=round ($this->instAmount(5),2)?></div>
+                      <div style="display:none" id="instAmount6"><?=round ($this->instAmount(6),2)?></div>
+
+    </div>
+</div>
+
+<style>
+    #innerpagantis {margin-left: 20px}
+    .pagantisradio {margin-right:10px}
+    #imgpagantisfront {height:20px; margin-right: 10px;}
+    #imgpagantisform {height: 30%;width: 30%;margin-left: 20%;}
+</style>
