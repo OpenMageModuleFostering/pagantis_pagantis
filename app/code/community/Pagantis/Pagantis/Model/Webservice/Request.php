@@ -136,6 +136,8 @@ class Pagantis_Pagantis_Model_Webservice_Request
         $array['metadata[num_full_refunds]'] = $this->_userData['num_full_refunds'];
         $array['metadata[num_partial_refunds]'] = $this->_userData['num_partial_refunds'];
         $array['metadata[amount_refunds]'] = $this->_userData['amount_refunded'];
+        $array['metadata[module_version]'] = '3.2.5';
+        $array['metadata[platform]'] = 'magento '. Mage::getVersion();
 
         foreach ($this->_items as $key => $value) {
             $array['items[' . $key . '][description]'] = $value['description'];

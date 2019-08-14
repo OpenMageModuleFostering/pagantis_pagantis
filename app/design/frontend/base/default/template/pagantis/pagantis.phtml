@@ -26,16 +26,20 @@
 </div>
 
 <style>
+/*<![CDATA[*/
     #innerpagantis {margin-left: 20px; height: 50px;}
     .pagantisradio {margin-right:10px}
     #imgpagantisfront {height:20px; margin-right: 10px;}
     #imgpagantisform {height: 30%;width: 30%;margin-left: 20%;}
+    /*]]>*/
 </style>
 
 <script>
+//<![CDATA[
 // widget activation
 jQuery( document ).ready(function() {
   pmtSimulator.simulator_app.setPublicKey("<?=$this->public_key?>");
   pmtSimulator.simulator_app.load_jquery();
 });
+//]]>
 </script>
