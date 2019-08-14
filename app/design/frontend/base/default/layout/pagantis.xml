@@ -5,4 +5,15 @@
 			<block type="pagantis_pagantis/redirect" name="redirect" template="pagantis/redirect.phtml"></block>
 		</reference>
 	</pagantis_pagantis_redirect>
+  <default>
+      <reference name="before_body_end">
+          <block type="core/text" name="mapcontrol.script.block">
+             <action method="setText"><text><![CDATA[<script src="https://cdn.pagamastarde.com/pmt-simulator/3/js/pmt-simulator.min.js"></script>]]></text></action>
+         </block>
+      </reference>
+      <reference name="head">
+        <action method="addItem"><type>skin_js</type><name>js/fancybox/jquery.fancybox.pack.js</name></action>
+        <action method="addCss"><stylesheet>js/fancybox/jquery.fancybox.css</stylesheet></action>
+    </reference>
+  </default>
 </layout>

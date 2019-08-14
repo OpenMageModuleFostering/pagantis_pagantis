@@ -2,7 +2,7 @@
 
 /**
  * Pagantis Checkout Controller
- * 
+ *
  * @package    Pagantis_Pagantis
  * @copyright  Copyright (c) 2015 Yameveo (http://www.yameveo.com)
  * @author	   Yameveo <yameveo@yameveo.com>
@@ -14,20 +14,40 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
      * When a customer chooses Pagantis on Checkout/Payment page
      *
      */
-    public function redirectAction()
-    {
-        $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
-        $session = Mage::getSingleton('checkout/session');
-        $order = Mage::getModel('sales/order')->load($session->getLastOrderId());
-        $order->setState($state, $state, Mage::helper('pagantis_pagantis')->__('Redirected to Pagantis'), false);
-        $order->save();
-        $this->loadLayout();
-        $this->renderLayout();
-    }
+     public function redirectAction()
+     {
+         $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+         $session = Mage::getSingleton('checkout/session');
+         $order = Mage::getModel('sales/order')->load($session->getLastOrderId());
+         $order->setState($state, $state, Mage::helper('pagantis_pagantis')->__('Redirected to Pagantis'), false);
+         $order->setPagantisTransaction('pmt_pending_order');
+         $order->save();
+
+         //$session->getQuote()->setIsActive(false)->save();
+         //$session->clear();
+
+         $cart = Mage::getSingleton('checkout/cart');
+         $items = $order->getItemsCollection();
+         if ($cart->getItemsCount()<=0){
+           foreach ($items as $item) {
+               try {
+                   $cart->addOrderItem($item);
+               } catch (Mage_Core_Exception $e) {
+                   $session->addError($this->__($e->getMessage()));
+                   Mage::logException($e);
+                   continue;
+               }
+           }
+           $cart->save();
+       }
+
+         $this->loadLayout();
+         $this->renderLayout();
+     }
 
     /**
      * When customer cancel payment from CECA (UrlKO)
-     * 
+     *
      */
     public function cancelAction()
     {
@@ -50,6 +70,23 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
 
         $json = file_get_contents('php://input');
         $temp = json_decode($json,true);
+        //verify notification
+        $conf = Mage::getStoreConfig('payment/pagantis');
+        $environment = $conf['environment'];
+        switch($environment){
+            case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
+                $key=$conf['account_key_test'];
+                break;
+            case Pagantis_Pagantis_Model_Webservice_Client::ENV_PRODUCTION:
+                $key=$conf['account_key_real'];
+                break;
+        }
+        $signature_check = sha1($key.$temp['account_id'].$temp['api_version'].$temp['event'].$temp['data']['id']);
+        if ($signature_check != $temp['signature'] ){
+          //hack detected
+          $this->cancelAction();
+          return false;
+        }
         $data = $temp['data'];
         $orderId = $data['order_id'];
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
@@ -63,12 +100,38 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
                     $this->_processOrder($order);
                     break;
                 case 'charge.failed':
-                    $order->setPagantisTransaction($data['id']);
-                    $order->setState(Mage_Sales_Model_Order::STATE_CANCELED,true);
-                    $order->save();
+                    if ( $order->getState != Mage_Sales_Model_Order::STATE_PROCESSING ) {
+                        $order->setPagantisTransaction($data['id']);
+                        $order->setState(Mage_Sales_Model_Order::STATE_CANCELED,true);
+                        $order->save();
+                    }
                     break;
             }
         }
+    }
+
+    public function geturlAction(){
+        //$json = json_decode(file_get_contents(Mage::getBaseDir().'/charge.created.txt'),true);
+        //Notification url mush be like http://mydomain.com/pagantis/pagantis/notification
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://pmt.pagantis.com/v1/installments');
+        curl_setopt($ch, CURLOPT_VERBOSE, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($_POST));
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+
+        $result = curl_exec($ch);
+        $the_url = substr(
+            $result,
+            strpos($result, 'href') + 6,
+            strpos($result, 'redirected') - strpos($result, 'href') - 6 - 2
+        );
+        echo $the_url;
     }
 
     /**
@@ -100,7 +163,7 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
 
     /**
      * Process order
-     * 
+     *
      * @param $order
      */
     private function _processOrder($order)
@@ -138,7 +201,7 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
 
     /**
      * Create an invoice for the order and send an email
-     * 
+     *
      * @param Mage_Sales_Model_Order $order
      * @return Mage_Sales_Model_Order_Invoice
      */

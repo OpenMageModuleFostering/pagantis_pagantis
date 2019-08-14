@@ -1,42 +1,45 @@
 <fieldset class="form-list">
     <?php $_code = $this->getMethodCode() ?>
-    <?php $activeMethodUnique = Mage::getStoreConfig('payment/pagantis/url_pagantis_activated'); ?>
+    <?php $activeMethodEndOfMonth = Mage::getStoreConfig('payment/pagantis/end_of_month'); ?>
+    <?php $discount = Mage::getStoreConfig('payment/pagantis/discount'); ?>
+    <?php $activeMethodEndOfMonth = false; ?>
     <?php $activeMethodLoan = Mage::getStoreConfig('payment/pagantis/url_pagantis_mastarde_activated'); ?>
 </fieldset>
 <div id="payment_form_<?php echo $_code ?>" style="display: none">
     <div id="innerpagantis">
-        <?php if($activeMethodUnique) : ?>
-            <?php if ($activeMethodLoan) :?>
-                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="unico" checked>Paga con cobro único<br />
-                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="financiacion">Financialo con Paga+Tarde<br />
-            <?php else : ?>
-                <input type="hidden" class="pagantisradio" name="paymentdetail[]" value="unico">
-            <?php endif; ?>
+        <?php if($activeMethodEndOfMonth) : ?>
+                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="financiacion" checked>Fináncialo con Paga+Tarde
+
+                <div class="PmtSimulator PmtSimulatorSelectable--claim" style="left:-10px; top: 5px;"
+                data-pmt-num-quota="4" data-pmt-style="neutral" data-pmt-type="3" data-pmt-discount="<?=$discount?>"
+                data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no"></div>
+
+                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="end_of_month">Paga a fin de mes<br />
         <?php else: ?>
             <input type="hidden" class="pagantisradio" name="paymentdetail[]" value="financiacion">
-        <?php endif; ?>
-        <p>Paga
-                       <span id="int_amount"><?=round($this->instAmount(6),2)?></span> € / mes en
-                        <select style="width:50px" name="num_inst" id="num_inst" onChange="document.getElementById('int_amount').innerHTML=document.getElementById('instAmount'+this.value).innerHTML;" >
-                          <option value="6">6</option>
-                          <option value="5">5</option>
-                          <option value="4">4</option>
-                          <option value="3">3</option>
-                          <option value="2">2</option>
-                      </select> plazos </p>
+            <div class="PmtSimulator PmtSimulatorSelectable--claim" style="left:-10px; top: 5px;"
+            data-pmt-num-quota="4" data-pmt-style="neutral" data-pmt-type="3" data-pmt-discount="<?=$discount?>"
+            data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no"></div>
 
-                      <div style="display:none" id="instAmount2"><?=round ($this->instAmount(2),2)?></div>
-                      <div style="display:none" id="instAmount3"><?=round ($this->instAmount(3),2)?></div>
-                      <div style="display:none" id="instAmount4"><?=round ($this->instAmount(4),2)?></div>
-                      <div style="display:none" id="instAmount5"><?=round ($this->instAmount(5),2)?></div>
-                      <div style="display:none" id="instAmount6"><?=round ($this->instAmount(6),2)?></div>
+        <?php endif; ?>
 
     </div>
 </div>
 
 <style>
-    #innerpagantis {margin-left: 20px}
+    #innerpagantis {margin-left: 20px; height: 50px;}
     .pagantisradio {margin-right:10px}
     #imgpagantisfront {height:20px; margin-right: 10px;}
     #imgpagantisform {height: 30%;width: 30%;margin-left: 20%;}
 </style>
+
+<script>
+// widget activation
+jQuery( document ).ready(function() {
+  if (document.getElementsByClassName("pmt_info").length <= 0 ){
+    jQuery.getScript("https://cdn.pagamastarde.com/pmt-simulator/3/js/pmt-simulator.min.js");
+  }
+  pmtSimulator.simulator_app.setPublicKey("<?=$this->public_key?>");
+  pmtSimulator.simulator_app.load_jquery();
+});
+</script>

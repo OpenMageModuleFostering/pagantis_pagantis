@@ -87,24 +87,30 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
     public function getRequest($amount, $orderId, $localeCode)
     {
         $language = $this->getConsumerLanguage($localeCode);
-        $request = Mage::getModel('pagantis_pagantis/webservice_request');
-        $request->setAmount($amount);
-        $request->setLanguagePagantis($language);
-        $request->setUrlPagantis($this->_config['url_pagantis']);
-        $request->setAuthMethod($this->_config['auth_method']);
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+        $addressId = $order->getShippingAddress()->getId();
+
+
+        $request = Mage::getModel('pagantis_pagantis/webservice_requestloan');
         $request->setOrderId($orderId);
         $request->setAmount($amount);
+        $request->setLanguagePagantis($language);
+        //$request->setUrlPagantis($this->_config['url_pagantis_mastarde']);
+        $request->setUrlPagantis (Pagantis_Pagantis_Model_Payment::PMT_URL);
+        $request->setUserData($addressId);
+        $request->setOrderItems($orderId);
+        $request->setAmount($amount);
         $request->setDiscount($this->_config['discount']);
+        $request->setIframe($this->_config['iframe']);
+        $request->setEndOfMonth('true');
         switch($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $request->setAccountCode($this->_config['account_code_test']);
                 $request->setAccountKey($this->_config['account_key_test']);
-                //$request->setAccountApiKey($this->_config['account_api_key_test']);
                 break;
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_PRODUCTION:
                 $request->setAccountCode($this->_config['account_code_real']);
                 $request->setAccountKey($this->_config['account_key_real']);
-                //$request->setAccountApiKey($this->_config['account_api_key_real']);
                 break;
         }
         $request->setUrlOk();
@@ -139,6 +145,8 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $request->setOrderItems($orderId);
         $request->setAmount($amount);
         $request->setDiscount($this->_config['discount']);
+        $request->setIframe($this->_config['iframe']);
+        $request->setEndOfMonth('false');
         switch($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $request->setAccountCode($this->_config['account_code_test']);

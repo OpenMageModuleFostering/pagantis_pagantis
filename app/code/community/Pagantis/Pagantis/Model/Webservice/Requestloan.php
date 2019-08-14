@@ -108,14 +108,15 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         $array['order_id'] = $this->_orderId;
         $array['amount'] = $this->_amount;
         $array['currency'] = $this->_currency;
-
         $array['ok_url'] = $this->_urlOk;
         $array['nok_url'] = $this->_urlKo;
         $array['callback_url'] = $this->_callback_url;
         $array['discount[full]'] = $this->_discount;
+        $array['iframe'] = $this->_iframe;
+        $array['end_of_month'] = $this->_end_of_month;
 
         $array['locale'] = $this->_languagePagantis;
-
+        $array['mobile_phone'] = $this->_userData['mobile_phone'];
         $array['full_name'] = $this->_userData['full_name'];
         $array['email'] = $this->_userData['email'];
         $array['address[street]'] = $this->_userData['street'];
@@ -123,6 +124,7 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         $array['address[province]'] = $this->_userData['province'];
         $array['address[zipcode]'] = $this->_userData['zipcode'];
         $array['dni'] = $this->_userData['dni'];
+        $array['dob'] = $this->_userData['dob'];
 
         foreach($this->_items as $key => $value){
             $array['items[' . $key . '][description]'] = $value['description'];
@@ -207,8 +209,10 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         if ($addressId) {
             $address = Mage::getModel('sales/order_address')->load($addressId);
             $street = $address->getStreet();
-            if ($street){
+            if (is_array($street)){
                 $this->_userData['street'] = $street[0];
+            }else{
+                $this->_userData['street'] = $street;
             }
             $this->_userData['city'] = $address->getCity();
             $this->_userData['province'] = $address->getCity();
@@ -216,8 +220,33 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
             $this->_userData['dni'] = $address->getVatId();
             $this->_userData['full_name'] = $address->getFirstname() . ' ' . $address->getLastname();
             $this->_userData['email'] = $address->getEmail();
+            $this->_userData['mobile_phone'] = $address->getTelephone();
         } else {
             throw new \Exception('Missing user data info');
+        }
+
+        //fix to avoid empty fields
+        if (Mage::getSingleton('customer/session')->isLoggedIn()) {
+          $customer = Mage::getSingleton('customer/session')->getCustomer();
+          if (empty($this->_userData['email'])){
+              $this->_userData['email'] = $customer->getEmail();
+          }
+          if (empty($this->_userData['full_name'])){
+              $this->_userData['full_name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
+          }
+          if (empty($this->_userData['dni'])){
+              $this->_userData['dni'] = $customer->getData('taxvat');
+          }
+          if (empty($this->_userData['phone'])){
+              $this->_userData['phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
+          }
+          if (empty($this->_userData['mobile_phone'])){
+              $this->_userData['mobile_phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
+          }
+          if (empty($this->_userData['zipcode'])){
+              $this->_userData['zipcode'] = $customer->getPrimaryBillingAddress()->getPostcode();
+          }
+          $this->_userData['dob'] =substr($customer->getDob(),0,10);
         }
     }
 
@@ -240,7 +269,7 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
                 $this->_items[$i]['amount'] = round($amount*$quantity,2);
                 $i++;
             }
-            $shippingAmount = round($order->getShippingAmount(),2);
+            $shippingAmount = round($order->getShippingInclTax(),2);
             if($shippingAmount){
                 $this->_items[$i]['description'] = "Gastos de envío";
                 $this->_items[$i]['quantity'] = "1";
@@ -284,6 +313,33 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
             $this->_discount = 'false';
         }
     }
+
+    /**
+     * Assign iframe
+     * @param string $iframe
+     * @throws Exception
+     */
+    public function setIframe($iframe=''){
+        if ($iframe == 1) {
+            $this->_iframe = 'true';
+        } else {
+            $this->_iframe = 'false';
+        }
+    }
+
+    /**
+     * Assign end_of_month
+     * @param string end_of_month
+     * @throws Exception
+     */
+    public function setEndOfMonth($end_of_month=''){
+        if ($end_of_month == 'true') {
+            $this->_end_of_month = 'true';
+        } else {
+            $this->_end_of_month = 'false';
+        }
+    }
+
     /**
      * Assign account key
      * @param string $accountKey
@@ -331,9 +387,14 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $urlnok
      * @throws Exception
      */
-    public function setCacllbackUrl($ur = '')
+    public function setCacllbackUrl()
     {
-        $this->_callback_url=Mage::getBaseUrl()."/pagantis/pagantis/notification";
+        if (Mage::app()->getStore()->isFrontUrlSecure()){
+            $this->_callback_url=Mage::getUrl('',array('_forced_secure'=>true))."pagantis/pagantis/notification";
+        }else{
+            $this->_callback_url=Mage::getUrl('',array('_forced_secure'=>false))."pagantis/pagantis/notification";
+        }
+        $this->_callback_url = Mage::getModel('core/url')->sessionUrlVar($this->_callback_url);
     }
 
 

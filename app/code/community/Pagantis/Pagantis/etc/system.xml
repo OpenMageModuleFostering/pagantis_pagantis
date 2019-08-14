@@ -43,18 +43,18 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </url_pagantis>
-                        <url_pagantis_activated translate="label" module="pagantis_pagantis">
-                            <label>Activar forma de Pago Cobro Único</label>
-                            <comment>Abilitando esta forma de pago el cliente podrá eligirla al momento de la compra</comment>
+                        </url_pagantis>-->
+                    <!--    <end_of_month translate="label" module="pagantis_pagantis">
+                            <label>Activar forma de Pago Cobro al fin de mes</label>
+                            <comment>Habilitando esta forma de pago, el cliente podrá eligir pagar la compra al final del mes</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>11</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </url_pagantis_activated>
-                        <url_pagantis_mastarde translate="label" module="pagantis_pagantis">
+                        </end_of_month> -->
+                        <!-- <url_pagantis_mastarde translate="label" module="pagantis_pagantis">
                             <label>URL Paga+Tarde</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>12</sort_order>
@@ -109,7 +109,7 @@
                         </auth_method>
                       -->
                         <account_code_test translate="label" module="pagantis_pagantis">
-                            <label>Código de cuenta de Test</label>
+                            <label>TEST Public Key</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>17</sort_order>
                             <show_in_default>1</show_in_default>
@@ -117,7 +117,7 @@
                             <show_in_store>1</show_in_store>
                         </account_code_test>
                         <account_key_test translate="label" module="pagantis_pagantis">
-                            <label>Clave de cuenta de Test</label>
+                            <label>TEST Secret Key</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>18</sort_order>
                             <show_in_default>1</show_in_default>
@@ -136,7 +136,7 @@
                         </account_api_key_test>
                       -->
                         <account_code_real translate="label" module="pagantis_pagantis">
-                            <label>Código de cuenta Real</label>
+                            <label>REAL Public Key</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
@@ -144,7 +144,7 @@
                             <show_in_store>1</show_in_store>
                         </account_code_real>
                         <account_key_real translate="label" module="pagantis_pagantis">
-                            <label>Clave de cuenta Real</label>
+                            <label>Real Secret Key</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>21</sort_order>
                             <show_in_default>1</show_in_default>
@@ -163,6 +163,7 @@
                         -->
                         <discount translate="label" module="pagantis_pagantis">
                             <label>Descuento - asumir comisiones</label>
+                            <comment>Las comisiones están asumidas por el comercio si el parámetro está activo.</comment>
                             <frontend_type>Select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>22</sort_order>
@@ -170,8 +171,18 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </discount>
+                        <iframe translate="label" module="pagantis_pagantis">
+                            <label>Iframe</label>
+                            <comment>Abrir el formulario en un pop-up</comment>
+                            <frontend_type>Select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>22</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </iframe>
                         <sendmail translate="label" module="pagantis_pagantis">
-                            <label>Envía correo de confirma</label>
+                            <label>Envía correo de confirmación</label>
                             <frontend_type>Select</frontend_type>
                             <sort_order>40</sort_order>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -180,7 +191,7 @@
                             <show_in_store>1</show_in_store>
                         </sendmail>
                         <invoice translate="label" module="pagantis_pagantis">
-                            <label>Crea factura automaticamente</label>
+                            <label>Crea factura automáticamente</label>
                             <frontend_type>Select</frontend_type>
                             <sort_order>50</sort_order>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -204,6 +215,22 @@
                             <comment>Utiliza el formato Crontab (p.e. "0 4 * * *" para cada día a las 4 a.m.)</comment>
                             <show_in_default>1</show_in_default>
                         </cron_settings>-->
+                        <min_order_total translate="label">
+                          <label>Precio mínimo</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>98</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                        </min_order_total>
+                        <max_order_total translate="label">
+                          <label>Precio máximo</label>
+                          <frontend_type>text</frontend_type>
+                          <sort_order>99</sort_order>
+                          <show_in_default>1</show_in_default>
+                          <show_in_website>1</show_in_website>
+                          <show_in_store>1</show_in_store>
+                        </max_order_total>
                     </fields>
                 </pagantis>
             </groups>

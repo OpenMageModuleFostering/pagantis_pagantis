@@ -69,11 +69,15 @@
                 <account_code_real></account_code_real>
                 <account_key_real></account_key_real>
                 <discount></discount>
+                <iframe></iframe>
+                <end_of_month></end_of_month>
                 <account_api_key_real></account_api_key_real>
                 <sendmail>1</sendmail>
                 <invoice>1</invoice>
                 <!--<sort_order></sort_order>-->
                 <payment_action>authorize_capture</payment_action>
+                <min_order_total>1</min_order_total>
+                <max_order_total>3500000</max_order_total>
             </pagantis>
         </payment>
     </default>
@@ -119,4 +123,14 @@
             </pagantis_pagantis>
         </jobs>
     </crontab>-->
+    <crontab>
+        <jobs>
+            <pagantis_pagantis>
+                 <schedule><cron_expr>*/30 * * * *</cron_expr></schedule>
+                <run>
+                    <model>pagantis_pagantis/observer::cancelPendingOrders</model>
+                </run>
+            </pagantis_pagantis>
+        </jobs>
+    </crontab>
 </config>

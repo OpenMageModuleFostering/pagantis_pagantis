@@ -2,7 +2,7 @@
 
 /**
  * Pagantis_Pagantis payment form
- * 
+ *
  * @package    Pagantis_Pagantis
  * @copyright  Copyright (c) 2015 Yameveo (http://www.yameveo.com)
  * @author	   Yameveo <yameveo@yameveo.com>
@@ -26,9 +26,15 @@ class Pagantis_Pagantis_Block_Redirect extends Mage_Core_Block_Template
                 ->setMethod('POST')
                 ->setUseContainer(true);
 
+        $vars = array();
         foreach ($paymentMethod->getFormFields() as $field => $value) {
             $form->addField($field, 'hidden', array('name' => $field, 'value' => $value));
+            $vars[$field]=$value;
         }
+        $this->_config = Mage::getStoreConfig('payment/pagantis');
+        $this->iframe = $this->_config['iframe'];
+        $this->_urlKo= $vars['nok_url'];
+
         $form->addField('submitButton', 'submit', array('name' => 'submitButton', 'value' => 'Continue'));
         $this->setFormRedirect($form->toHtml());
     }

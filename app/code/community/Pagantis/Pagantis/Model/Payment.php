@@ -19,7 +19,7 @@ class Pagantis_Pagantis_Model_Payment extends Mage_Payment_Model_Method_Abstract
     protected $_canUseForMultishipping  = false;
     protected $_config = null;
 
-    const PAYMENT_UNIQUE = 'unico';
+    const PAYMENT_END_OF_MONTH = 'end_of_month';
     const PAYMENT_LOAN = 'financiacion';
     const PMT_URL = 'https://pmt.pagantis.com/v1/installments/';
 
@@ -93,8 +93,9 @@ class Pagantis_Pagantis_Model_Payment extends Mage_Payment_Model_Method_Abstract
         $orderId = $order->increment_id;
 
         $localeCode = Mage::app()->getLocale()->getLocaleCode();
+
         switch($paymentDetails) {
-            case self::PAYMENT_UNIQUE:
+            case self::PAYMENT_END_OF_MONTH:
                 $request = Mage::helper('pagantis_pagantis')->getRequest($amount, $orderId, $localeCode);
                 break;
             case self::PAYMENT_LOAN:
@@ -102,6 +103,24 @@ class Pagantis_Pagantis_Model_Payment extends Mage_Payment_Model_Method_Abstract
                 break;
         }
         return $request->toArray();
+    }
+
+    /* Mage_Payment_Model_Method_Abstract method overrides */
+    /**
+     * To check billing country is allowed for the payment method
+     * We don't filter countries but we have the function ready.
+     *
+     * @return bool
+     */
+    public function canUseForCountry($country)
+    {
+        return true;
+
+        if ($country == 'ES') {
+            return true;
+        }
+
+        return false;
     }
 
 

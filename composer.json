@@ -3,7 +3,7 @@
     "type": "magento-module",
     "license": "GPL",
     "homepage": "",
-    "description": "Modulo de Magento para abilitar la pasarela de pago PagaMasTarde en Magento.",
+    "description": "Modulo de Magento para habilitar la pasarela de pago Pagantis en Magento.",
     "authors": [
     {
         "name": "Albert Fatsini",

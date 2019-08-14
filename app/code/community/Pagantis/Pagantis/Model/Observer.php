@@ -107,5 +107,40 @@ class Pagantis_Pagantis_Model_Observer
     }
 
 
+    /*
+        autmatically cancel the not paid orders afer 60 minutes
+     */
+        public function cancelPendingOrders()
+    	{
+                $orderCollection = Mage::getResourceModel('sales/order_collection');
+
+                $orderCollection
+                        ->addFieldToFilter('state', 'pending_payment')
+                        ->addFieldToFilter('pagantis_transaction', 'pmt_pending_order')
+                        ->addFieldToFilter('created_at', array(
+    'lt' =>  new Zend_Db_Expr("DATE_ADD('".now()."', INTERVAL -'60:00' HOUR_MINUTE)")))
+                        ->getSelect()
+                        ->limit(20)
+                ;
+
+
+               $orders ="";
+                foreach($orderCollection->getItems() as $order)
+                {
+                  $orderModel = Mage::getModel('sales/order');
+                  $orderModel->load($order['entity_id']);
+
+
+                  if(!$orderModel->canCancel())
+    				continue;
+
+                  $orderModel->cancel();
+                  $orderModel->setStatus('canceled');
+                  $orderModel->save();
+
+                }
+    	}
+
+
 
 }

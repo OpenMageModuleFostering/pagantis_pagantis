@@ -79,9 +79,14 @@ class Pagantis_Pagantis_Model_Webservice_Request
     protected $_firma;
 
     /**
-     * @var dicount
+     * @var discount
      */
-    protected $_dicount;
+    protected $_discount;
+
+    /**
+     * @var end_of_month
+     */
+    protected $_end_of_month;
 
 
     public function __construct()
@@ -98,18 +103,36 @@ class Pagantis_Pagantis_Model_Webservice_Request
     public function toArray()
     {
         $array = array();
-        $array['locale'] = $this->_languagePagantis;
+        $array['order_id'] = $this->_orderId;
+        $array['amount'] = $this->_amount;
+        $array['currency'] = $this->_currency;
+
         $array['ok_url'] = $this->_urlOk;
         $array['nok_url'] = $this->_urlKo;
         $array['callback_url'] = $this->_callback_url;
-        $array['discount'] = $this->_discount;
+        $array['iframe'] = $this->_iframe;
         //$array['urlPagantis'] = $this->_urlPagantis;
+        $array['discount[full]'] = $this->_discount;
+        $array['end_of_month'] = $this->_end_of_month;
+
+        $array['locale'] = $this->_languagePagantis;
+        $array['phone'] = $this->_userData['phone'];
+        $array['full_name'] = $this->_userData['full_name'];
+        $array['email'] = $this->_userData['email'];
+        $array['address[street]'] = $this->_userData['street'];
+        $array['address[city]'] = $this->_userData['city'];
+        $array['address[province]'] = $this->_userData['province'];
+        $array['address[zipcode]'] = $this->_userData['zipcode'];
+        $array['dni'] = $this->_userData['dni'];
+
+        foreach($this->_items as $key => $value){
+            $array['items[' . $key . '][description]'] = $value['description'];
+            $array['items[' . $key . '][quantity]'] = $value['quantity'];
+            $array['items[' . $key . '][amount]'] = $value['amount'];
+        }
         $array['account_id'] = $this->_accountCode;
-        $array['amount'] = $this->_amount;
-        $array['auth_method'] = $this->_authMethod;
-        $array['currency'] = $this->_currency;
         $array['signature'] = $this->_firma;
-        $array['order_id'] = $this->_orderId;
+
         return $array;
     }
 
@@ -175,12 +198,66 @@ class Pagantis_Pagantis_Model_Webservice_Request
     }
 
     /**
-     * Assign authentication method
-     * @param string $authMethod Auth method.
+     * Assign user data
+     * @param string $addressId
+     * @throws Exception
      */
-    public function setAuthMethod($authMethod = 'SHA1')
+    public function setUserData($addressId)
     {
-        $this->_authMethod = $authMethod;
+        if ($addressId) {
+            $address = Mage::getModel('sales/order_address')->load($addressId);
+            $street = $address->getStreet();
+            if ($street){
+                $this->_userData['street'] = $street[0];
+            }
+            $this->_userData['city'] = $address->getCity();
+            $this->_userData['province'] = $address->getCity();
+            $this->_userData['zipcode'] = $address->getPostcode();
+            $this->_userData['dni'] = $address->getVatId();
+            $this->_userData['full_name'] = $address->getFirstname() . ' ' . $address->getLastname();
+            $this->_userData['email'] = $address->getEmail();
+            $this->_userData['phone'] = $address->getTelephone();
+        } else {
+            throw new \Exception('Missing user data info');
+        }
+    }
+
+    /**
+     * Assign user data
+     * @param string $addressId
+     * @throws Exception
+     */
+    public function setOrderItems($orderId)
+    {
+        if ($orderId) {
+            $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+            $items = $order->getAllVisibleItems();
+            $i = 0;
+            foreach($items as $item){
+                $amount = round($item->getPriceInclTax(),2);
+                $quantity = round($item->getQtyOrdered());
+                $this->_items[$i]['description'] = $item->getName();
+                $this->_items[$i]['quantity'] = $quantity;
+                $this->_items[$i]['amount'] = round($amount*$quantity,2);
+                $i++;
+            }
+            $shippingAmount = round($order->getShippingInclTax(),2);
+            if($shippingAmount){
+                $this->_items[$i]['description'] = "Gastos de envío";
+                $this->_items[$i]['quantity'] = "1";
+                $this->_items[$i]['amount'] = $shippingAmount;
+                $i++;
+            }
+            $discountAmount = round($order->getBaseDiscountAmount(),2);
+            if($discountAmount){
+                $this->_items[$i]['description'] = "Descuento";
+                $this->_items[$i]['quantity'] = "1";
+                $this->_items[$i]['amount'] = $discountAmount;
+            }
+
+        } else {
+            throw new \Exception('Missing user data info');
+        }
     }
 
     /**
@@ -206,6 +283,32 @@ class Pagantis_Pagantis_Model_Webservice_Request
             $this->_discount = 'true';
         } else {
             $this->_discount = 'false';
+        }
+    }
+
+    /**
+     * Assign iframe
+     * @param string $iframe
+     * @throws Exception
+     */
+    public function setIframe($iframe=''){
+        if ($iframe == 1) {
+            $this->_iframe = 'true';
+        } else {
+            $this->_iframe = 'false';
+          }
+      }
+
+    /**
+     * Assign end_of_month
+     * @param string end_of_month
+     * @throws Exception
+     */
+    public function setEndOfMonth($end_of_month=''){
+        if ($end_of_month == 'true') {
+            $this->_end_of_month = 'true';
+        } else {
+            $this->_end_of_month = 'false';
         }
     }
 
@@ -268,26 +371,35 @@ class Pagantis_Pagantis_Model_Webservice_Request
      * @param string $urlnok
      * @throws Exception
      */
-    public function setCacllbackUrl($url = '')
+    public function setCacllbackUrl()
     {
-        $this->_callback_url=Mage::getBaseUrl()."/pagantis/pagantis/notification";
+      if (Mage::app()->getStore()->isFrontUrlSecure()){
+          $this->_callback_url=Mage::getUrl('',array('_forced_secure'=>true))."pagantis/pagantis/notification";
+      }else{
+          $this->_callback_url=Mage::getUrl('',array('_forced_secure'=>false))."pagantis/pagantis/notification";
+      }
+      $this->_callback_url = Mage::getModel('core/url')->sessionUrlVar($this->_callback_url);
     }
 
     /**
      * Firm generation
-     * Generated with SHA1 of _accountKey + _accountCode + _orderId + _amount + _currency + _authMethod + _urlOk + _urlKo
+     * Generated with SHA1 of _accountKey + _accountCode + _orderId + _amount + _currency + _urlOk + _urlKo
      * @throws Exception
      * @return string
      */
     public function setFirma()
     {
-
+        $textToEncode = $this->_accountKey . $this->_accountCode . $this->_orderId . $this->_amount . $this->_currency  . $this->_urlOk . $this->_urlKo . $this->_callback_url . $this->_discount;
+        //encoding is SHA1
+        $this->_firma = sha1($textToEncode);
+        /*
         if (strlen(trim($textToEncode)) > 0) {
             // Retrieve del SHA1
             $this->_firma = sha1($textToEncode);
         } else {
             throw new Exception('Missing SHA1');
         }
+        */
     }
 
     //Utilities

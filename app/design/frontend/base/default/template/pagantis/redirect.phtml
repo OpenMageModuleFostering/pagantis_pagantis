@@ -1,7 +1,64 @@
 <div style="text-align: center">
-    <h3><?php echo $this->__('Haciendo click en continuar será redirigido a la pasarela de pago seguro de Pagantis.') ?></h3>
+    <?php
+      if ($this->iframe) {
+    ?>
+    <h3><?php echo $this->__('Si no se abre el pop-up haga click al botón para ser redirigido a la página de pago') ?></h3>
     <?php echo $this->getFormRedirect(); ?>
+    <?php
+  } else {
+    ?>
+    <h3><?php echo $this->__('Haciendo click en continuar será redirigido a la pasarela de pago seguro de Paga+Tarde.') ?></h3>
+     <?php echo $this->getFormRedirect(); ?>
+    <script type='text/javascript'>
+        $('pagantis_pagantis_checkout').submit();
+    </script>
+    <?php
+      }
+    ?>
 </div>
-<script type='text/javascript'>
-    $('pagantis_pagantis_checkout').submit();
+
+
+<?php
+  if ($this->iframe) {
+?>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+  if (jQuery.isFunction(jQuery.fancybox) ){
+    jQuery.ajax({
+      type: 'POST',
+      url: '<?php
+        if (Mage::app()->getStore()->isFrontUrlSecure()){
+            echo Mage::getUrl('',array('_forced_secure'=>true))."pagantis/pagantis/geturl";
+        }else{
+            echo Mage::getUrl('',array('_forced_secure'=>false))."pagantis/pagantis/geturl";
+        }
+        ?>',
+      data: jQuery('#pagantis_pagantis_checkout').serialize(),
+      success: function(data, textStatus, jqXHR)
+      {
+        jQuery.fancybox({
+          // fancybox API options
+          type: 'iframe',
+          fitToView: false,
+          openEffect: 'none',
+          closeEffect: 'none',
+          'width'  : 920,
+          'minHeight' : 230,
+          'height'  : 600,
+          'href': data,
+          afterClose  : function() {
+             window.location= '<?php echo $this->_urlKo;?>';
+          }
+        }); // fancybox
+      },
+      error: function(error){ jQuery('#pagantis_pagantis_checkout').submit(); }
+    });
+  }else{
+    jQuery('#pagantis_pagantis_checkout').submit();
+  }
+}); //ready
 </script>
+
+<?php
+  }
+?>

@@ -1,6 +1,11 @@
 .adminLogoPagantis {
-    width:160px;
+    width:700px;
     height:100px;
     background:url(../../default/default/images/pagantis/logopagamastarde.png) no-repeat 0 2px;
     background-size: 150px;
+}
+.adminp {
+    margin-left: 170px;
+    padding: 6px;
+
 }
