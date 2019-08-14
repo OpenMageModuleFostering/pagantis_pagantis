@@ -20,7 +20,7 @@
 ?>
 
 <!-- The Modal -->
-<div id="myModal" class="paylater_modal">
+<div id="paylater_myModal" class="paylater_modal">
   <!-- Modal content -->
   <div class="paylater_modal-content">
     <span id="paylater_close">x</span>
@@ -35,15 +35,15 @@ el.addEventListener('click', function (e){
   document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
   document.getElementById('pagantis_pagantis_checkout').submit();
   document.getElementById('iframe-pagantis').style.display = 'block';
-  document.getElementById('myModal').style.display = 'block';
+  document.getElementById('paylater_myModal').style.display = 'block';
 });
 
 var closeModal = function closeModal(evt) {
  evt.preventDefault();
- document.getElementById('myModal').style.display = 'none';
+ document.getElementById('paylater_myModal').style.display = 'none';
 };
 
-var elements = document.querySelectorAll('#paylater_close, #myModal');
+var elements = document.querySelectorAll('#paylater_close, #paylater_myModal');
  Array.prototype.forEach.call(elements, function(el){
  el.addEventListener('click', closeModal);
 });
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
   document.getElementById('pagantis_pagantis_checkout').submit();
   document.getElementById('iframe-pagantis').style.display = 'block';
-  document.getElementById('myModal').style.display = 'block';
+  document.getElementById('paylater_myModal').style.display = 'block';
   });
 </script>
 
