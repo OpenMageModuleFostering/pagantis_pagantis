@@ -16,33 +16,29 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
      */
      public function redirectAction()
      {
-         $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
          $session = Mage::getSingleton('checkout/session');
          $order = Mage::getModel('sales/order')->load($session->getLastOrderId());
-         $order->setState($state, $state, Mage::helper('pagantis_pagantis')->__('Redirected to Pagantis'), false);
-         $order->setPagantisTransaction('pmt_pending_order');
-         $order->save();
-
-         //$session->getQuote()->setIsActive(false)->save();
-         //$session->clear();
-
-         $cart = Mage::getSingleton('checkout/cart');
-         $items = $order->getItemsCollection();
-         if ($cart->getItemsCount()<=0){
-           foreach ($items as $item) {
-               try {
-                   $cart->addOrderItem($item);
-               } catch (Mage_Core_Exception $e) {
-                   $session->addError($this->__($e->getMessage()));
-                   Mage::logException($e);
-                   continue;
-               }
-           }
-           $cart->save();
-       }
-
-         $this->loadLayout();
-         $this->renderLayout();
+         //we came back from previous order
+         if ($order->getState() == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT
+             && $order->getPagantisTransaction() == 'pmt_pending_order') {
+               $this->_restore_cart($order);
+               $this->loadLayout();
+               $this->renderLayout();
+         }
+         // if order is not paid yet, redirect to payment page
+         else if($order->getState() != Mage_Sales_Model_Order::STATE_COMPLETE &&
+            $order->getState() !=Mage_Sales_Model_Order::STATE_PROCESSING) {
+            $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+            $order->setState($state, $state, Mage::helper('pagantis_pagantis')->__('Redirected to Pagantis'), false);
+            $order->setPagantisTransaction('pmt_pending_order');
+            $order->save();
+            $this->_restore_cart($order);
+            $this->loadLayout();
+            $this->renderLayout();
+         } else {
+             //order is paid
+             $this->successAction();
+         }
      }
 
     /**
@@ -52,16 +48,25 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
     public function cancelAction()
     {
         $session = Mage::getSingleton('checkout/session');
-        //Mage::getSingleton(‘core/session’)->addError(‘Error message’);
-        $session->addError('Lo sentimos, se ha producido algún error en el pago, le agradeceríamos que volviera a intentarlo.');
-        if ($session->getLastRealOrderId()) {
-            $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
-            if ($order->getId()) {
+        $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
+        if ( !$order->getId()) {
+          $session->addError('Lo sentimos, se ha producido algún error en el pago, le agradeceríamos que volviera a intentarlo.');
+          Mage::helper('pagantis_pagantis')->restoreQuote();
+          $this->_redirect('checkout/cart');
+        } elseif ($order->getId() &&
+            $order->getState() != Mage_Sales_Model_Order::STATE_COMPLETE &&
+            $order->getState() !=Mage_Sales_Model_Order::STATE_PROCESSING) {
+            //Mage::getSingleton(‘core/session’)->addError(‘Error message’);
+            $session->addError('Lo sentimos, se ha producido algún error en el pago, le agradeceríamos que volviera a intentarlo.');
+            if ($session->getLastRealOrderId()) {
                 $order->cancel()->save();
+                Mage::helper('pagantis_pagantis')->restoreQuote();
             }
-            Mage::helper('pagantis_pagantis')->restoreQuote();
+            $this->_redirect('checkout/cart');
+        } else {
+          //order is paid
+          $this->successAction();
         }
-        $this->_redirect('checkout/cart');
     }
 
     public function notificationAction(){
@@ -101,7 +106,8 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
                     $this->_processOrder($order);
                     break;
                 case 'charge.failed':
-                    if ( $order->getState != Mage_Sales_Model_Order::STATE_PROCESSING ) {
+                    if ( $order->getState != Mage_Sales_Model_Order::STATE_PROCESSING &&
+                         $order->getState != Mage_Sales_Model_Order::STATE_COMPLETE) {
                         $order->setPagantisTransaction($data['id']);
                         $order->setState(Mage_Sales_Model_Order::STATE_CANCELED,true);
                         $order->save();
@@ -224,4 +230,20 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
         return $invoice;
     }
 
+    private function _restore_cart($order) {
+        $cart = Mage::getSingleton('checkout/cart');
+        $items = $order->getItemsCollection();
+        if ($cart->getItemsCount()<=0){
+          foreach ($items as $item) {
+              try {
+                  $cart->addOrderItem($item);
+              } catch (Mage_Core_Exception $e) {
+                  $session->addError($this->__($e->getMessage()));
+                  Mage::logException($e);
+                  continue;
+              }
+          }
+          $cart->save();
+        }
+    }
 }

@@ -493,7 +493,8 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      */
      public function setUrlCancelled($urlKo = '')
      {
-         $urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
+         #$urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
+         $urlCancel =  $this->getUrl('cancel');
          $have_params = strpos($urlCancel,'?');
          if ($have_params !== false){
            $urlCancel = substr($urlCancel,0,$have_params);
