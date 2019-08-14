@@ -105,48 +105,85 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
     public function toArray()
     {
         $array = array();
-        $array['order_id'] = $this->_orderId;
-        $array['amount'] = $this->_amount;
+        //configuration parameters
+        $array['account_id'] = $this->_accountCode;
         $array['currency'] = $this->_currency;
         $array['ok_url'] = $this->_urlOk;
         $array['nok_url'] = $this->_urlKo;
         $array['callback_url'] = $this->_callback_url;
         $array['cancelled_url'] = $this->_urlCancel;
+        $array['order_id'] = $this->_orderId;
+        $array['amount'] = $this->_amount;
+        $array['signature'] = $this->_firma;
+        $array['description'] = '';
+        foreach ($this->_items as $key => $value) {
+            $array['description'] .= $value['description'] . "(".$value['quantity']."),";
+            $array['items[' . $key . '][description]'] = $value['description'];
+            $array['items[' . $key . '][quantity]'] = $value['quantity'];
+            $array['items[' . $key . '][amount]'] = $value['amount'];
+        }
+        $array['description'] = substr($array['description'], 0, -1);
+        $array['locale'] = $this->_languagePagantis;
         $array['discount[full]'] = $this->_discount;
         $array['iframe'] = $this->_iframe;
         $array['end_of_month'] = $this->_end_of_month;
 
-        $array['locale'] = $this->_languagePagantis;
-        $array['mobile_phone'] = $this->_userData['mobile_phone'];
+        // data used to prefill the form
         $array['full_name'] = $this->_userData['full_name'];
         $array['email'] = $this->_userData['email'];
-        $array['address[street]'] = $this->_userData['Bstreet'];
-        $array['address[city]'] = $this->_userData['Bcity'];
-        $array['address[province]'] = $this->_userData['Bprovince'];
-        $array['address[zipcode]'] = $this->_userData['Bzipcode'];
-        $array['shipping[street]'] = $this->_userData['street'];
-        $array['shipping[city]'] = $this->_userData['city'];
-        $array['shipping[province]'] = $this->_userData['province'];
-        $array['shipping[zipcode]'] = $this->_userData['zipcode'];
         $array['dni'] = $this->_userData['dni'];
         $array['dob'] = $this->_userData['dob'];
+        $array['address[street]'] = $this->_userData['billing[street]'];
+        $array['address[city]'] = $this->_userData['billing[city]'];
+        $array['address[zipcode]'] = $this->_userData['billing[zipcode]'];
+        $array['mobile_phone'] = $this->_userData['billing[mobile_phone]'];
+
+        // customer iformation
+        $array['loginCustomer[gender]'] = $this->_userData['loginCustomer[gender]'];
+        $array['loginCustomer[email]'] = $this->_userData['loginCustomer[email]'];
+        $array['loginCustomer[dob]'] = $this->_userData['loginCustomer[dob]'];
+        $array['loginCustomer[dni]'] = $this->_userData['loginCustomer[dni]'];
+        $array['loginCustomer[is_guest]'] = $this->_userData['loginCustomer[is_guest]'];
+        $array['loginCustomer[last_updated]'] = $this->_userData['loginCustomer[last_updated]'];
+        $array['loginCustomer[full_name]'] = $this->_userData['loginCustomer[full_name]'];
+
         $array['metadata[member_since]'] = $this->_userData['sign_up_date'];
         $array['metadata[num_orders]'] = $this->_userData['num_prev_orders'];
         $array['metadata[amount_orders]'] = $this->_userData['total_paid'];
         $array['metadata[num_full_refunds]'] = $this->_userData['num_full_refunds'];
         $array['metadata[num_partial_refunds]'] = $this->_userData['num_partial_refunds'];
         $array['metadata[amount_refunds]'] = $this->_userData['amount_refunded'];
-        $array['metadata[module_version]'] = '3.2.5';
+
+
+        //shipping information
+        $array['shipping[street]'] = $this->_userData['shipping[street]'];
+        $array['shipping[city]'] = $this->_userData['shipping[city]'];
+        $array['shipping[province]'] = $this->_userData['shipping[province]'];
+        $array['shipping[zipcode]'] = $this->_userData['shipping[zipcode]'];
+        $array['shipping[company]'] = $this->_userData['shipping[company]'];
+        $array['shipping[vat_number]'] = $this->_userData['shipping[vat_number]'];
+        $array['shipping[mobile_phone]'] = $this->_userData['shipping[mobile_phone]'];
+        $array['shipping[date_add]'] = $this->_userData['shipping[date_add]'];
+        $array['shipping[last_updated]'] = $this->_userData['shipping[last_updated]'];
+        $array['shipping[dni]'] = $this->_userData['shipping[dni]'];
+        $array['shipping[full_name]'] = $this->_userData['shipping[full_name]'];
+
+        //billing information
+        $array['billing[street]'] = $this->_userData['billing[street]'];
+        $array['billing[city]'] = $this->_userData['billing[city]'];
+        $array['billing[province]'] = $this->_userData['billing[province]'];
+        $array['billing[zipcode]'] = $this->_userData['billing[zipcode]'];
+        $array['billing[company]'] = $this->_userData['billing[company]'];
+        $array['billing[vat_number]'] = $this->_userData['billing[vat_number]'];
+        $array['billing[mobile_phone]'] = $this->_userData['billing[mobile_phone]'];
+        $array['billing[date_add]'] = $this->_userData['billing[date_add]'];
+        $array['billing[last_updated]'] = $this->_userData['billing[last_updated]'];
+        $array['billing[dni]'] = $this->_userData['billing[dni]'];
+        $array['billing[full_name]'] = $this->_userData['billing[full_name]'];
+
+
+        $array['metadata[module_version]'] = '3.3.1';
         $array['metadata[platform]'] = 'magento '. Mage::getVersion();
-
-        foreach ($this->_items as $key => $value) {
-            $array['items[' . $key . '][description]'] = $value['description'];
-            $array['items[' . $key . '][quantity]'] = $value['quantity'];
-            $array['items[' . $key . '][amount]'] = $value['amount'];
-        }
-
-        $array['account_id'] = $this->_accountCode;
-        $array['signature'] = $this->_firma;
 
         return $array;
     }
@@ -217,49 +254,135 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $addressId
      * @throws Exception
      */
-    public function setUserData($addressId)
+    public function setUserData($orderId)
     {
-        if ($addressId) {
-            $address = Mage::getModel('sales/order_address')->load($addressId);
+        if ($orderId) {
+            $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+            $address = $order->getShippingAddress();
             $street = $address->getStreet();
             if (is_array($street)) {
-                $this->_userData['street'] = $street[0];
+                $this->_userData['shipping[street]'] = $street[0];
             } else {
-                $this->_userData['street'] = $street;
+                $this->_userData['shipping[street]'] = $street;
             }
-            $this->_userData['city'] = $address->getCity();
-            $this->_userData['province'] = $address->getCity();
-            $this->_userData['zipcode'] = $address->getPostcode();
-            $this->_userData['dni'] = $address->getVatId();
+
+            $region = Mage::getModel('directory/region')->load($address->getRegionId());
+            $state_name = $region->getName();
+            $this->_userData['shipping[city]'] = $address->getCity();
+            $this->_userData['shipping[province]'] = $state_name;
+            $this->_userData['shipping[zipcode]'] = $address->getPostcode();
+            $this->_userData['shipping[dni]'] = $address->getVatId();
+            $this->_userData['shipping[full_name]'] = $address->getFirstname() . ' ' . $address->getLastname();
+            $this->_userData['shipping[email]'] = $address->getEmail();
+            $this->_userData['shipping[mobile_phone]'] = $address->getTelephone();
+            $this->_userData['shipping[company]'] = $address->getCompany();
+            $this->_userData['shipping[vat_number]'] = $address->getTaxvat();
+
+            $addressesCollection = Mage::getResourceModel('customer/address_collection');
+            $addressesCollection->addAttributeToFilter('city', $address->getCity());
+            $addressesCollection->addAttributeToFilter('postcode', $address->getPostcode());
+            $addressesCollection->addAttributeToFilter('firstname', $address->getFirstname());
+            $addressesCollection->addAttributeToFilter('lastname', $address->getLastname());
+            $addressesCollection->addAttributeToFilter('region', $state_name);
+            $addressesCollection->addAttributeToFilter('street', array("like" => '%'.$this->_userData['shipping[street]'].'%'));
+
+            foreach ($addressesCollection as $address) {
+                $this->_userData['shipping[date_add]'] = $address->created_at;
+                $this->_userData['shipping[last_updated]'] = $address->updated_at;
+            }
+
+            $address = $order->getBillingAddress();
+            $street = $address->getStreet();
+            if (is_array($street)) {
+                $this->_userData['billing[street]'] = $street[0];
+            } else {
+                $this->_userData['billing[street]'] = $street;
+            }
+            $region = Mage::getModel('directory/region')->load($address->getRegionId());
+            $state_name = $region->getName();
+            $this->_userData['billing[city]'] = $address->getCity();
+            $this->_userData['billing[province]'] = $state_name;
+            $this->_userData['billing[zipcode]'] = $address->getPostcode();
+            $this->_userData['billing[dni]'] = $address->getVatId();
+
+            switch ($order->getCustomerGender()) {
+                case 1:
+                    $this->_userData['loginCustomer[gender]'] = 'male';
+                    break;
+                case 2:
+                    $this->_userData['loginCustomer[gender]'] = 'female';
+                    break;
+                default:
+                    $this->_userData['loginCustomer[gender]'] = '';
+                    break;
+            }
+            $this->_userData['billing[full_name]'] = $address->getFirstname() . ' ' . $address->getLastname();
             $this->_userData['full_name'] = $address->getFirstname() . ' ' . $address->getLastname();
             $this->_userData['email'] = $address->getEmail();
-            $this->_userData['mobile_phone'] = $address->getTelephone();
+
+            $this->_userData['billing[email]'] = $address->getEmail();
+            $this->_userData['billing[mobile_phone]'] = $address->getTelephone();
+            $this->_userData['billing[company]'] = $address->getCompany();
+            $this->_userData['billing[vat_number]'] = $address->getTaxvat();
+
+            $addressesCollection = Mage::getResourceModel('customer/address_collection');
+            $addressesCollection->addAttributeToFilter('city', $address->getCity());
+            $addressesCollection->addAttributeToFilter('postcode', $address->getPostcode());
+            $addressesCollection->addAttributeToFilter('firstname', $address->getFirstname());
+            $addressesCollection->addAttributeToFilter('lastname', $address->getLastname());
+            $addressesCollection->addAttributeToFilter('region', $state_name);
+            $addressesCollection->addAttributeToFilter('street', array("like" => '%'.$this->_userData['billing[street]'].'%'));
+
+            foreach ($addressesCollection as $address) {
+                $this->_userData['billing[date_add]'] = $address->created_at;
+                $this->_userData['billing[last_updated]'] = $address->updated_at;
+            }
+
+            if ($order->getCustomerFirstname() == $address->getFirstname()
+                && $order->getCustomerLastname() == $address->getLastname()) {
+                $this->_userData['dni'] = $address->getVatId();
+                $this->_userData['dob'] =  substr($order->getCustomerDob(), 0, 10);
+            }
         } else {
             throw new \Exception('Missing user data info');
         }
 
+          $this->_userData['loginCustomer[is_guest]'] = Mage::getSingleton('customer/session')->isLoggedIn() ? '0' : '1';
+
         //fix to avoid empty fields
         if (Mage::getSingleton('customer/session')->isLoggedIn()) {
-          $customer = Mage::getSingleton('customer/session')->getCustomer();
-          if (empty($this->_userData['email'])){
-              $this->_userData['email'] = $customer->getEmail();
-          }
-          if (empty($this->_userData['full_name'])){
-              $this->_userData['full_name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
-          }
-          if (empty($this->_userData['dni'])){
-              $this->_userData['dni'] = $customer->getData('taxvat');
-          }
-          if (empty($this->_userData['phone'])){
-              $this->_userData['phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
-          }
-          if (empty($this->_userData['mobile_phone'])){
-              $this->_userData['mobile_phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
-          }
-          if (empty($this->_userData['zipcode'])){
-              $this->_userData['zipcode'] = $customer->getPrimaryBillingAddress()->getPostcode();
-          }
-          $this->_userData['dob'] =substr($customer->getDob(),0,10);
+            $customer = Mage::getSingleton('customer/session')->getCustomer();
+            $this->_userData['loginCustomer[email]'] = $customer->getEmail();
+            $this->_userData['loginCustomer[full_name]'] = $customer->getFirstname() . ' ' . $customer->getLastname();
+            $this->_userData['loginCustomer[dni]'] = $customer->getData('taxvat');
+            $this->_userData['loginCustomer[dob]'] = substr($customer->getDob(), 0, 10);
+            if (empty($this->_userData['email'])) {
+                $this->_userData['email'] = $this->_userData['loginCustomer[email]'];
+            }
+            if (empty($this->_userData['full_name'])) {
+                $this->_userData['full_name'] = $this->_userData['loginCustomer[full_name]'];
+            }
+            if (empty($this->_userData['dni']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['dni'] = $this->_userData['loginCustomer[dni]'];
+            }
+            if (empty($this->_userData['phone']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
+            }
+            if (empty($this->_userData['mobile_phone']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['mobile_phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
+            }
+            if (empty($this->_userData['zipcode']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['zipcode'] = $customer->getPrimaryBillingAddress()->getPostcode();
+            }
+            $this->_userData['customer_dob'] = substr($customer->getDob(), 0, 10);
+            if ($customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['dob'] = substr($customer->getDob(), 0, 10);
+            }
         }
     }
 
@@ -291,6 +414,7 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
 
         if ($customer->getId() != null) {
             $this->_userData['sign_up_date'] = date('Y/m/d', $customer->getCreatedAtTimestamp());
+            $this->_userData['loginCustomer[last_updated]'] = $customer->getUpdatedAt();
             $_orders = Mage::getModel('sales/order')->getCollection()->
                       addFieldToFilter('customer_id', $customer->getId())->
                       addFieldToFilter('status', array(
@@ -334,56 +458,29 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $addressId
      * @throws Exception
      */
-    public function setUserBillData($addressId)
-    {
-        if ($addressId) {
-            $address = Mage::getModel('sales/order_address')->load($addressId);
-            $street = $address->getStreet();
-            if ($street){
-                $this->_userData['Bstreet'] = $street[0];
-            }
-            $this->_userData['Bcity'] = $address->getCity();
-            $this->_userData['Bprovince'] = $address->getCity();
-            $this->_userData['Bzipcode'] = $address->getPostcode();
-            $this->_userData['Bdni'] = $address->getVatId();
-            $this->_userData['Bfull_name'] = $address->getFirstname() . ' ' . $address->getLastname();
-            $this->_userData['Bemail'] = $address->getEmail();
-            $this->_userData['Bphone'] = $address->getTelephone();
-        } else {
-            throw new \Exception('Missing user data info');
-        }
-    }
-
-
-
-    /**
-     * Assign user data
-     * @param string $addressId
-     * @throws Exception
-     */
     public function setOrderItems($orderId)
     {
         if ($orderId) {
             $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
             $items = $order->getAllVisibleItems();
             $i = 0;
-            foreach($items as $item){
-                $amount = round($item->getPriceInclTax(),2);
+            foreach ($items as $item) {
+                $amount = round($item->getPriceInclTax(), 2);
                 $quantity = round($item->getQtyOrdered());
                 $this->_items[$i]['description'] = $item->getName();
                 $this->_items[$i]['quantity'] = $quantity;
-                $this->_items[$i]['amount'] = round($amount*$quantity,2);
+                $this->_items[$i]['amount'] = round($amount*$quantity, 2);
                 $i++;
             }
-            $shippingAmount = round($order->getShippingInclTax(),2);
-            if($shippingAmount){
+            $shippingAmount = round($order->getShippingInclTax(), 2);
+            if ($shippingAmount) {
                 $this->_items[$i]['description'] = "Gastos de envío";
                 $this->_items[$i]['quantity'] = "1";
                 $this->_items[$i]['amount'] = $shippingAmount;
                 $i++;
             }
-            $discountAmount = round($order->getBaseDiscountAmount(),2);
-            if($discountAmount){
+            $discountAmount = round($order->getBaseDiscountAmount(), 2);
+            if ($discountAmount) {
                 $this->_items[$i]['description'] = "Descuento";
                 $this->_items[$i]['quantity'] = "1";
                 $this->_items[$i]['amount'] = $discountAmount;
@@ -399,7 +496,8 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $accountCode
      * @throws Exception
      */
-    public function setAccountCode($accountCode=''){
+    public function setAccountCode($accountCode = '')
+    {
         if (strlen(trim($accountCode)) > 0) {
             $this->_accountCode = $accountCode;
         } else {
@@ -412,7 +510,8 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $discount
      * @throws Exception
      */
-    public function setDiscount($discount=''){
+    public function setDiscount($discount = '')
+    {
         if ($discount == 1) {
             $this->_discount = 'true';
         } else {
@@ -425,7 +524,8 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $iframe
      * @throws Exception
      */
-    public function setIframe($iframe=''){
+    public function setIframe($iframe = '')
+    {
         if ($iframe == 1) {
             $this->_iframe = 'true';
         } else {
@@ -438,7 +538,8 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string end_of_month
      * @throws Exception
      */
-    public function setEndOfMonth($end_of_month=''){
+    public function setEndOfMonth($end_of_month = '')
+    {
         if ($end_of_month == 'true') {
             $this->_end_of_month = 'true';
         } else {
@@ -451,7 +552,8 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $accountKey
      * @throws Exception
      */
-    public function setAccountKey($accountKey=''){
+    public function setAccountKey($accountKey = '')
+    {
         if (strlen(trim($accountKey)) > 0) {
             $this->_accountKey = $accountKey;
         } else {
@@ -493,20 +595,20 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      * @param string $urlnok
      * @throws Exception
      */
-     public function setUrlCancelled($urlKo = '')
-     {
-         #$urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
-         $urlCancel =  $this->getUrl('cancel');
-         $have_params = strpos($urlCancel,'?');
-         if ($have_params !== false){
-           $urlCancel = substr($urlCancel,0,$have_params);
-         }
-         if (strlen(trim($urlCancel)) > 0) {
-             $this->_urlCancel = $urlCancel;
-         } else {
-             throw new \Exception('UrlKo not defined');
-         }
-     }
+    public function setUrlCancelled($urlKo = '')
+    {
+        #$urlCancel = Mage::helper('checkout/url')->getCheckoutUrl();
+        $urlCancel =  $this->getUrl('cancel');
+        $have_params = strpos($urlCancel, '?');
+        if ($have_params !== false) {
+            $urlCancel = substr($urlCancel, 0, $have_params);
+        }
+        if (strlen(trim($urlCancel)) > 0) {
+            $this->_urlCancel = $urlCancel;
+        } else {
+            throw new \Exception('UrlKo not defined');
+        }
+    }
 
     /**
      * @param string $urlnok
@@ -514,10 +616,10 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
      */
     public function setCacllbackUrl()
     {
-        if (Mage::app()->getStore()->isFrontUrlSecure()){
-            $this->_callback_url=Mage::getUrl('',array('_forced_secure'=>true))."pagantis/pagantis/notification";
-        }else{
-            $this->_callback_url=Mage::getUrl('',array('_forced_secure'=>false))."pagantis/pagantis/notification";
+        if (Mage::app()->getStore()->isFrontUrlSecure()) {
+            $this->_callback_url=Mage::getUrl('', array('_forced_secure'=>true))."pagantis/pagantis/notification";
+        } else {
+            $this->_callback_url=Mage::getUrl('', array('_forced_secure'=>false))."pagantis/pagantis/notification";
         }
         $this->_callback_url = Mage::getModel('core/url')->sessionUrlVar($this->_callback_url);
     }
@@ -535,7 +637,7 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         //encoding is SHA1
         $this->_firma = sha1($textToEncode);
         //encoding is SHA512
-        $this->_firma = hash('sha512',$textToEncode);
+        $this->_firma = hash('sha512', $textToEncode);
         /*
         if (strlen(trim($textToEncode)) > 0) {
             // Retrieve del SHA1

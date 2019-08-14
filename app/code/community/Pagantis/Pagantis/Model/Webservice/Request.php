@@ -136,7 +136,7 @@ class Pagantis_Pagantis_Model_Webservice_Request
         $array['metadata[num_full_refunds]'] = $this->_userData['num_full_refunds'];
         $array['metadata[num_partial_refunds]'] = $this->_userData['num_partial_refunds'];
         $array['metadata[amount_refunds]'] = $this->_userData['amount_refunded'];
-        $array['metadata[module_version]'] = '3.2.5';
+        $array['metadata[module_version]'] = '3.3.1';
         $array['metadata[platform]'] = 'magento '. Mage::getVersion();
 
         foreach ($this->_items as $key => $value) {
@@ -239,26 +239,33 @@ class Pagantis_Pagantis_Model_Webservice_Request
 
         //fix to avoid empty fields
         if (Mage::getSingleton('customer/session')->isLoggedIn()) {
-          $customer = Mage::getSingleton('customer/session')->getCustomer();
-          if (empty($this->_userData['email'])){
-              $this->_userData['email'] = $customer->getEmail();
-          }
-          if (empty($this->_userData['full_name'])){
-              $this->_userData['full_name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
-          }
-          if (empty($this->_userData['dni'])){
-              $this->_userData['dni'] = $customer->getData('taxvat');
-          }
-          if (empty($this->_userData['phone'])){
-              $this->_userData['phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
-          }
-          if (empty($this->_userData['mobile_phone'])){
-              $this->_userData['mobile_phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
-          }
-          if (empty($this->_userData['zipcode'])){
-              $this->_userData['zipcode'] = $customer->getPrimaryBillingAddress()->getPostcode();
-          }
-          $this->_userData['dob'] =substr($customer->getDob(),0,10);
+            $customer = Mage::getSingleton('customer/session')->getCustomer();
+            if (empty($this->_userData['email'])) {
+                $this->_userData['email'] = $customer->getEmail();
+            }
+            if (empty($this->_userData['full_name'])) {
+                $this->_userData['full_name'] = $customer->getFirstname() . ' ' . $customer->getLastname();
+            }
+            if (empty($this->_userData['dni']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['dni'] = $customer->getData('taxvat');
+            }
+            if (empty($this->_userData['phone']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
+            }
+            if (empty($this->_userData['mobile_phone']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['mobile_phone'] = $customer->getPrimaryBillingAddress()->getTelephone();
+            }
+            if (empty($this->_userData['zipcode']) && $customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['zipcode'] = $customer->getPrimaryBillingAddress()->getPostcode();
+            }
+            if ($customer->getFirstname() == $address->getFirstname()
+                && $customer->getLastname() == $address->getLastname()) {
+                $this->_userData['dob'] =substr($customer->getDob(), 0, 10);
+            }
         }
     }
 
@@ -338,7 +345,7 @@ class Pagantis_Pagantis_Model_Webservice_Request
         if ($addressId) {
             $address = Mage::getModel('sales/order_address')->load($addressId);
             $street = $address->getStreet();
-            if ($street){
+            if ($street) {
                 $this->_userData['Bstreet'] = $street[0];
             }
             $this->_userData['Bcity'] = $address->getCity();
@@ -364,23 +371,23 @@ class Pagantis_Pagantis_Model_Webservice_Request
             $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
             $items = $order->getAllVisibleItems();
             $i = 0;
-            foreach($items as $item){
-                $amount = round($item->getPriceInclTax(),2);
+            foreach ($items as $item) {
+                $amount = round($item->getPriceInclTax(), 2);
                 $quantity = round($item->getQtyOrdered());
                 $this->_items[$i]['description'] = $item->getName();
                 $this->_items[$i]['quantity'] = $quantity;
-                $this->_items[$i]['amount'] = round($amount*$quantity,2);
+                $this->_items[$i]['amount'] = round($amount*$quantity, 2);
                 $i++;
             }
-            $shippingAmount = round($order->getShippingInclTax(),2);
-            if($shippingAmount){
+            $shippingAmount = round($order->getShippingInclTax(), 2);
+            if ($shippingAmount) {
                 $this->_items[$i]['description'] = "Gastos de envío";
                 $this->_items[$i]['quantity'] = "1";
                 $this->_items[$i]['amount'] = $shippingAmount;
                 $i++;
             }
-            $discountAmount = round($order->getBaseDiscountAmount(),2);
-            if($discountAmount){
+            $discountAmount = round($order->getBaseDiscountAmount(), 2);
+            if ($discountAmount) {
                 $this->_items[$i]['description'] = "Descuento";
                 $this->_items[$i]['quantity'] = "1";
                 $this->_items[$i]['amount'] = $discountAmount;
@@ -396,7 +403,8 @@ class Pagantis_Pagantis_Model_Webservice_Request
      * @param string $accountCode
      * @throws Exception
      */
-    public function setAccountCode($accountCode=''){
+    public function setAccountCode($accountCode = '')
+    {
         if (strlen(trim($accountCode)) > 0) {
             $this->_accountCode = $accountCode;
         } else {
@@ -409,7 +417,8 @@ class Pagantis_Pagantis_Model_Webservice_Request
      * @param string $discount
      * @throws Exception
      */
-    public function setDiscount($discount=''){
+    public function setDiscount($discount = '')
+    {
         if ($discount == 1) {
             $this->_discount = 'true';
         } else {

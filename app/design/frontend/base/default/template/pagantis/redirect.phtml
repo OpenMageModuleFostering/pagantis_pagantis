@@ -16,7 +16,7 @@
 
 
 <?php
-  if ($this->iframe) {
+if ($this->iframe) {
 ?>
 
 <!-- The Modal -->
@@ -57,5 +57,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 </script>
 
 <?php
-  }
+} else {
+?>
+  <script type="text/javascript">
+    (function () {
+        document.getElementById("pagantis_pagantis_checkout").submit();
+    })();
+  </script>
+<?php
+}
 ?>

@@ -10,7 +10,6 @@
  */
 class Pagantis_Pagantis_Block_Redirect extends Mage_Core_Block_Template
 {
-
     protected function _construct()
     {
         parent::_construct();
@@ -18,7 +17,6 @@ class Pagantis_Pagantis_Block_Redirect extends Mage_Core_Block_Template
         $urlPagantis = $helperPagantis->getUrlPagantis();
         $paymentMethod = Mage::getModel('pagantis_pagantis/payment');
         $form = new Varien_Data_Form();
-
 
         $form->setAction($urlPagantis)
                 ->setId('pagantis_pagantis_checkout')
@@ -38,5 +36,4 @@ class Pagantis_Pagantis_Block_Redirect extends Mage_Core_Block_Template
         $form->addField('submitButton', 'submit', array('name' => 'submitButton', 'value' => 'Continue'));
         $this->setFormRedirect($form->toHtml());
     }
-
 }

@@ -97,14 +97,13 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $request->setAmount($amount);
         $request->setLanguagePagantis($language);
         $request->setUrlPagantis(Pagantis_Pagantis_Model_Payment::PMT_URL);
-        $request->setUserData($addressId);
-        $request->setUserBillData($addressBillingId);
+        $request->setUserData($orderId);
         $request->setOrderItems($orderId);
         $request->setAmount($amount);
         $request->setDiscount($this->_config['discount']);
         $request->setIframe($this->_config['iframe']);
         $request->setEndOfMonth('true');
-        $request->setUserExtraData($addressId);
+        $request->setUserExtraData($addressBillingId);
         switch ($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $request->setAccountCode($this->_config['account_code_test']);
@@ -137,20 +136,18 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
         $addressId = $order->getShippingAddress()->getId();
         $addressBillingId = $order->getBillingAddress()->getId();
-
         $request = Mage::getModel('pagantis_pagantis/webservice_requestloan');
         $request->setOrderId($orderId);
         $request->setAmount($amount);
         $request->setLanguagePagantis($language);
         $request->setUrlPagantis(Pagantis_Pagantis_Model_Payment::PMT_URL);
-        $request->setUserData($addressId);
-        $request->setUserBillData($addressBillingId);
+        $request->setUserData($orderId);
         $request->setOrderItems($orderId);
         $request->setAmount($amount);
         $request->setDiscount($this->_config['discount']);
         $request->setIframe($this->_config['iframe']);
         $request->setEndOfMonth('false');
-        $request->setUserExtraData($addressId);
+        $request->setUserExtraData($addressBillingId);
         switch ($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $request->setAccountCode($this->_config['account_code_test']);
@@ -181,7 +178,7 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
     public function getTransactionInfo($transaction)
     {
         $paymentRequest = Mage::getModel('pagantis_pagantis/webservice_paymentrequest');
-        switch($this->_config['environment']) {
+        switch ($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $paymentRequest->setBearer($this->_config['account_api_key_test']);
                 break;
@@ -196,7 +193,8 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
 
-    public function getUrlPagantis() {
+    public function getUrlPagantis()
+    {
         return Pagantis_Pagantis_Model_Payment::PMT_URL;
     }
 
