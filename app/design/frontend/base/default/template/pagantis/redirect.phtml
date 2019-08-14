@@ -19,12 +19,10 @@
 if ($this->iframe) {
 ?>
 
-<!-- The Modal -->
-<div id="paylater_myModal" class="paylater_modal">
-  <!-- Modal content -->
+<div id="paylater_myModal" class="paylater_modal" style="display: none;">
   <div class="paylater_modal-content">
-    <span id="paylater_close">x</span>
-    <iframe id="iframe-pagantis" name="iframe-pagantis" style="width:100%;height:600px;display:block"></iframe>
+    <iframe id="iframe-pagantis" name="iframe-pagantis" style="width: 100%; height: 100%; display: block" frameborder="0"></iframe>
+    <button class="paylater_modal-close" id="paylater_close" title="Cerrar" type="button">X</button>
   </div>
 </div>
 
@@ -54,6 +52,54 @@ document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById('iframe-pagantis').style.display = 'block';
   document.getElementById('paylater_myModal').style.display = 'block';
   });
+</script>
+
+<script type="text/javascript">
+(function() {
+  function addClass(el, className) {
+    if (el.classList){
+      el.classList.add(className);
+    } else{
+      el.className += ' ' + className;
+    }
+  }
+  function removeClass(el, className) {
+    if (el.classList) {
+      el.classList.remove(className);
+    } else {
+      el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+  }
+
+  el = document.getElementById("submitButton");
+  el.addEventListener('click', function (e){
+    e.preventDefault();
+    document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
+    document.getElementById('pagantis_pagantis_checkout').submit();
+    document.getElementById('iframe-pagantis').style.display = 'block';
+    document.getElementById('paylater_myModal').style.display = 'block';
+    addClass(document.getElementsByTagName('body')[0], 'paylater_modal-open')
+  });
+  var closeModal = function closeModal(evt) {
+   evt.preventDefault();
+   document.getElementById('paylater_myModal').style.display = 'none';
+   removeClass(document.getElementsByTagName('body')[0], 'paylater_modal-open');
+  };
+
+  var elements = document.querySelectorAll('#paylater_close, #myModal');
+   Array.prototype.forEach.call(elements, function(el){
+   el.addEventListener('click', closeModal);
+  });
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+    document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
+    document.getElementById('pagantis_pagantis_checkout').submit();
+    document.getElementById('iframe-pagantis').style.display = 'block';
+    document.getElementById('paylater_myModal').style.display = 'block';
+    addClass(document.getElementsByTagName('body')[0], 'paylater_modal-open')
+    });
+
+})()
 </script>
 
 <?php

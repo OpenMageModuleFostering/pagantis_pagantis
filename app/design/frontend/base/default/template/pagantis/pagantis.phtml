@@ -1,27 +1,13 @@
 <fieldset class="form-list">
     <?php $_code = $this->getMethodCode() ?>
-    <?php $activeMethodEndOfMonth = Mage::getStoreConfig('payment/pagantis/end_of_month'); ?>
     <?php $discount = Mage::getStoreConfig('payment/pagantis/discount'); ?>
-    <?php $activeMethodEndOfMonth = false; ?>
 </fieldset>
 <div id="payment_form_<?php echo $_code ?>" style="display: none">
     <div id="innerpagantis">
-        <?php if($activeMethodEndOfMonth) : ?>
-                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="financiacion" checked>Fináncialo con Paga+Tarde
-
-                <div class="PmtSimulator PmtSimulatorSelectable--claim" style="left:-10px; top: 5px;"
-                data-pmt-num-quota="4" data-pmt-style="neutral" data-pmt-type="3" data-pmt-discount="<?=$discount?>"
-                data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no" data-pmt-max-ins="12"></div>
-
-                <input type="radio" class="pagantisradio" name="paymentdetail[]" value="end_of_month">Paga a fin de mes<br />
-        <?php else: ?>
             <input type="hidden" class="pagantisradio" name="paymentdetail[]" value="financiacion">
             <div class="PmtSimulator PmtSimulatorSelectable--claim" style="left:-10px; top: 5px;"
             data-pmt-num-quota="4" data-pmt-style="neutral" data-pmt-type="3" data-pmt-discount="<?=$discount?>"
             data-pmt-amount="<?=$this->total?>" data-pmt-expanded="no" data-pmt-max-ins="12"></div>
-
-        <?php endif; ?>
-
     </div>
 </div>
 

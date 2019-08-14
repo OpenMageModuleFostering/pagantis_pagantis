@@ -32,7 +32,6 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
             $order->setState($state, $state, Mage::helper('pagantis_pagantis')->__('Redirected to Pagantis'), false);
             $order->setPagantisTransaction('pmt_pending_order');
             $order->save();
-            $this->_restore_cart($order);
             $this->loadLayout();
             $this->renderLayout();
          } else {
@@ -231,6 +230,7 @@ class Pagantis_Pagantis_PagantisController extends Mage_Core_Controller_Front_Ac
     }
 
     private function _restore_cart($order) {
+        $session = Mage::getSingleton('checkout/session');
         $cart = Mage::getSingleton('checkout/cart');
         $items = $order->getItemsCollection();
         if ($cart->getItemsCount()<=0){
