@@ -96,7 +96,7 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $request->setOrderId($orderId);
         $request->setAmount($amount);
         $request->setLanguagePagantis($language);
-        $request->setUrlPagantis (Pagantis_Pagantis_Model_Payment::PMT_URL);
+        $request->setUrlPagantis(Pagantis_Pagantis_Model_Payment::PMT_URL);
         $request->setUserData($addressId);
         $request->setUserBillData($addressBillingId);
         $request->setOrderItems($orderId);
@@ -104,7 +104,8 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $request->setDiscount($this->_config['discount']);
         $request->setIframe($this->_config['iframe']);
         $request->setEndOfMonth('true');
-        switch($this->_config['environment']) {
+        $request->setUserExtraData($addressId);
+        switch ($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $request->setAccountCode($this->_config['account_code_test']);
                 $request->setAccountKey($this->_config['account_key_test']);
@@ -137,12 +138,11 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $addressId = $order->getShippingAddress()->getId();
         $addressBillingId = $order->getBillingAddress()->getId();
 
-
         $request = Mage::getModel('pagantis_pagantis/webservice_requestloan');
         $request->setOrderId($orderId);
         $request->setAmount($amount);
         $request->setLanguagePagantis($language);
-        $request->setUrlPagantis (Pagantis_Pagantis_Model_Payment::PMT_URL);
+        $request->setUrlPagantis(Pagantis_Pagantis_Model_Payment::PMT_URL);
         $request->setUserData($addressId);
         $request->setUserBillData($addressBillingId);
         $request->setOrderItems($orderId);
@@ -150,7 +150,8 @@ class Pagantis_Pagantis_Helper_Data extends Mage_Core_Helper_Abstract
         $request->setDiscount($this->_config['discount']);
         $request->setIframe($this->_config['iframe']);
         $request->setEndOfMonth('false');
-        switch($this->_config['environment']) {
+        $request->setUserExtraData($addressId);
+        switch ($this->_config['environment']) {
             case Pagantis_Pagantis_Model_Webservice_Client::ENV_TESTING:
                 $request->setAccountCode($this->_config['account_code_test']);
                 $request->setAccountKey($this->_config['account_key_test']);

@@ -37,23 +37,22 @@ el.addEventListener('click', function (e){
   document.getElementById('iframe-pagantis').style.display = 'block';
   document.getElementById('myModal').style.display = 'block';
 });
+
 var closeModal = function closeModal(evt) {
-   evt.preventDefault();
-   document.getElementById('myModal').style.display = 'none';
- };
+ evt.preventDefault();
+ document.getElementById('myModal').style.display = 'none';
+};
 
- var elements = document.querySelectorAll('#paylater_close, #myModal');
-   Array.prototype.forEach.call(elements, function(el){
-   el.addEventListener('click', closeModal);
- });
-</script>
+var elements = document.querySelectorAll('#paylater_close, #myModal');
+ Array.prototype.forEach.call(elements, function(el){
+ el.addEventListener('click', closeModal);
+});
 
-<script>
 document.addEventListener("DOMContentLoaded", function(event) {
-    document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
-    document.getElementById('pagantis_pagantis_checkout').submit();
-    document.getElementById('iframe-pagantis').style.display = 'block';
-    document.getElementById('myModal').style.display = 'block';
+  document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
+  document.getElementById('pagantis_pagantis_checkout').submit();
+  document.getElementById('iframe-pagantis').style.display = 'block';
+  document.getElementById('myModal').style.display = 'block';
   });
 </script>
 

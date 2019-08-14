@@ -18,6 +18,8 @@ class Pagantis_Pagantis_Model_Payment extends Mage_Payment_Model_Method_Abstract
     protected $_canUseInternal          = false;
     protected $_canUseForMultishipping  = false;
     protected $_config = null;
+    protected $_allowCurrencyCode = array('EUR');
+
 
     const PAYMENT_END_OF_MONTH = 'end_of_month';
     const PAYMENT_LOAN = 'financiacion';
@@ -123,5 +125,17 @@ class Pagantis_Pagantis_Model_Payment extends Mage_Payment_Model_Method_Abstract
         return false;
     }
 
-
+    /**
+    * Whether method is available for specified currency
+    *
+    * @param string $currencyCode
+    * @return bool
+    */
+    public function canUseForCurrency($currencyCode)
+    {
+        if (!in_array($currencyCode, $this->_allowCurrencyCode)) {
+            return false;
+        }
+        return true;
+    }
 }

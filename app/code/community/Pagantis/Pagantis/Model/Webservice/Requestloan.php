@@ -130,8 +130,14 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         $array['shipping[zipcode]'] = $this->_userData['zipcode'];
         $array['dni'] = $this->_userData['dni'];
         $array['dob'] = $this->_userData['dob'];
+        $array['metadata[member_since]'] = $this->_userData['sign_up_date'];
+        $array['metadata[num_orders]'] = $this->_userData['num_prev_orders'];
+        $array['metadata[amount_orders]'] = $this->_userData['total_paid'];
+        $array['metadata[num_full_refunds]'] = $this->_userData['num_full_refunds'];
+        $array['metadata[num_partial_refunds]'] = $this->_userData['num_partial_refunds'];
+        $array['metadata[amount_refunds]'] = $this->_userData['amount_refunded'];
 
-        foreach($this->_items as $key => $value){
+        foreach ($this->_items as $key => $value) {
             $array['items[' . $key . '][description]'] = $value['description'];
             $array['items[' . $key . '][quantity]'] = $value['quantity'];
             $array['items[' . $key . '][amount]'] = $value['amount'];
@@ -214,9 +220,9 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         if ($addressId) {
             $address = Mage::getModel('sales/order_address')->load($addressId);
             $street = $address->getStreet();
-            if (is_array($street)){
+            if (is_array($street)) {
                 $this->_userData['street'] = $street[0];
-            }else{
+            } else {
                 $this->_userData['street'] = $street;
             }
             $this->_userData['city'] = $address->getCity();
@@ -252,6 +258,72 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
               $this->_userData['zipcode'] = $customer->getPrimaryBillingAddress()->getPostcode();
           }
           $this->_userData['dob'] =substr($customer->getDob(),0,10);
+        }
+    }
+
+    /**
+     * Assign user extra data
+     * @param string $addressId
+     */
+    public function setUserExtraData($addressId)
+    {
+        //set default values if we don't find the customer
+        $this->_userData['sign_up_date']= '';
+        $this->_userData['num_prev_orders'] = 0;
+        $this->_userData['total_paid'] = 0;
+        $this->_userData['amount_refunded'] = 0;
+        $this->_userData['num_refunds'] = 0;
+        if (Mage::getSingleton('customer/session')->isLoggedIn()) {
+            //if user is logged
+            $customer = Mage::getSingleton('customer/session')->getCustomer();
+        } else {
+            //user not logged
+            if ($addressId) {
+                $address = Mage::getModel('sales/order_address')->load($addressId);
+                $email = $address->getEmail();
+                $customer = Mage::getModel("customer/customer");
+                $customer->setWebsiteId(Mage::app()->getStore()->getWebsiteId());
+                $customer->loadByEmail($email);
+            }
+        }
+
+        if ($customer->getId() != null) {
+            $this->_userData['sign_up_date'] = date('Y/m/d', $customer->getCreatedAtTimestamp());
+            $_orders = Mage::getModel('sales/order')->getCollection()->
+                      addFieldToFilter('customer_id', $customer->getId())->
+                      addFieldToFilter('status', array(
+                        array('finset'=> array('complete')),
+                        array('finset'=> array('processing')),
+                      ));
+            $this->_userData['num_prev_orders'] = $_orders->count();
+            $total = 0;
+            foreach ($_orders as $order) {
+                $total += $order->getGrandTotal();
+            }
+
+            $total_memo_amt = 0;
+            $total_partial_memos = 0;
+            $total_full_memos = 0;
+            $_orders = Mage::getModel('sales/order')->getCollection()->
+                      addFieldToFilter('customer_id', $customer->getId());
+            foreach ($_orders as $order) {
+                $creditMemos = Mage::getResourceModel('sales/order_creditmemo_collection');
+                $creditMemos->addFieldToFilter('order_id', $order->getId());
+                $creditMemos->setOrder('created_at', 'DESC');
+                foreach ($creditMemos as $memo) {
+                    if ($order->getGrandTotal() == $memo->getGrandTotal()) {
+                        $total_full_memos += 1;
+                    } else {
+                        $total_partial_memos += 1;
+                    }
+                    $total_memo_amt += $memo->getGrandTotal();
+                }
+                //$total_memos += $creditMemos->count();
+            }
+            $this->_userData['amount_refunded'] = ($total_memo_amt);
+            $this->_userData['num_full_refunds'] = ($total_full_memos);
+            $this->_userData['num_partial_refunds'] = ($total_partial_memos);
+            $this->_userData['total_paid'] = $total;
         }
     }
 
