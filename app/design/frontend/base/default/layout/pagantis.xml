@@ -12,8 +12,7 @@
          </block>
       </reference>
       <reference name="head">
-        <action method="addItem"><type>skin_js</type><name>js/fancybox/jquery.fancybox.pack.js</name></action>
-        <action method="addCss"><stylesheet>js/fancybox/jquery.fancybox.css</stylesheet></action>
-    </reference>
+          <action method="addCss"><name>iframe.css</name></action>
+      </reference>
   </default>
 </layout>

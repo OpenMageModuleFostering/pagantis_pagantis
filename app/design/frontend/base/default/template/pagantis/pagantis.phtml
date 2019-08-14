@@ -35,9 +35,6 @@
 <script>
 // widget activation
 jQuery( document ).ready(function() {
-  if (document.getElementsByClassName("pmt_info").length <= 0 ){
-    jQuery.getScript("https://cdn.pagamastarde.com/pmt-simulator/3/js/pmt-simulator.min.js");
-  }
   pmtSimulator.simulator_app.setPublicKey("<?=$this->public_key?>");
   pmtSimulator.simulator_app.load_jquery();
 });

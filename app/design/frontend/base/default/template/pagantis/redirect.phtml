@@ -9,54 +9,52 @@
     ?>
     <h3><?php echo $this->__('Haciendo click en continuar será redirigido a la pasarela de pago seguro de Paga+Tarde.') ?></h3>
      <?php echo $this->getFormRedirect(); ?>
-    <script type='text/javascript'>
-        $('pagantis_pagantis_checkout').submit();
-    </script>
-    <?php
-      }
-    ?>
+     <?php
+        }
+     ?>
 </div>
 
 
 <?php
   if ($this->iframe) {
 ?>
+
+<!-- The Modal -->
+<div id="myModal" class="paylater_modal">
+  <!-- Modal content -->
+  <div class="paylater_modal-content">
+    <span id="paylater_close">x</span>
+    <iframe id="iframe-pagantis" name="iframe-pagantis" style="width:100%;height:600px;display:block"></iframe>
+  </div>
+</div>
+
 <script type="text/javascript">
-jQuery(document).ready(function() {
-  if (jQuery.isFunction(jQuery.fancybox) ){
-    jQuery.ajax({
-      type: 'POST',
-      url: '<?php
-        if (Mage::app()->getStore()->isFrontUrlSecure()){
-            echo Mage::getUrl('',array('_forced_secure'=>true))."pagantis/pagantis/geturl";
-        }else{
-            echo Mage::getUrl('',array('_forced_secure'=>false))."pagantis/pagantis/geturl";
-        }
-        ?>',
-      data: jQuery('#pagantis_pagantis_checkout').serialize(),
-      success: function(data, textStatus, jqXHR)
-      {
-        jQuery.fancybox({
-          // fancybox API options
-          type: 'iframe',
-          fitToView: false,
-          openEffect: 'none',
-          closeEffect: 'none',
-          'width'  : 920,
-          'minHeight' : 230,
-          'height'  : 600,
-          'href': data,
-          afterClose  : function() {
-             window.location= '<?php echo $this->_urlKo;?>';
-          }
-        }); // fancybox
-      },
-      error: function(error){ jQuery('#pagantis_pagantis_checkout').submit(); }
-    });
-  }else{
-    jQuery('#pagantis_pagantis_checkout').submit();
-  }
-}); //ready
+el = document.getElementById("submitButton");
+el.addEventListener('click', function (e){
+  e.preventDefault();
+  document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
+  document.getElementById('pagantis_pagantis_checkout').submit();
+  document.getElementById('iframe-pagantis').style.display = 'block';
+  document.getElementById('myModal').style.display = 'block';
+});
+var closeModal = function closeModal(evt) {
+   evt.preventDefault();
+   document.getElementById('myModal').style.display = 'none';
+ };
+
+ var elements = document.querySelectorAll('#paylater_close, #myModal');
+   Array.prototype.forEach.call(elements, function(el){
+   el.addEventListener('click', closeModal);
+ });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(event) {
+    document.getElementById('pagantis_pagantis_checkout').setAttribute('target', 'iframe-pagantis');
+    document.getElementById('pagantis_pagantis_checkout').submit();
+    document.getElementById('iframe-pagantis').style.display = 'block';
+    document.getElementById('myModal').style.display = 'block';
+  });
 </script>
 
 <?php
