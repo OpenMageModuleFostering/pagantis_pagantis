@@ -25,6 +25,8 @@
 // widget activation
 jQuery( document ).ready(function() {
   pmtSimulator.simulator_app.setPublicKey("<?=$this->public_key?>");
+  pmtClient.setPublicKey("<?=$this->public_key?>");
+  pmtClient.events.send("checkout", { basketAmount: <?=$this->total?> } );
   pmtSimulator.simulator_app.load_jquery();
 });
 //]]>

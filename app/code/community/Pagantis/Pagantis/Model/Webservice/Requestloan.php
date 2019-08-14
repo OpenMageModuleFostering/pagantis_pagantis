@@ -182,7 +182,7 @@ class Pagantis_Pagantis_Model_Webservice_Requestloan
         $array['billing[full_name]'] = $this->_userData['billing[full_name]'];
 
 
-        $array['metadata[module_version]'] = '3.3.4';
+        $array['metadata[module_version]'] = '3.3.5';
         $array['metadata[platform]'] = 'magento '. Mage::getVersion();
 
         return $array;
