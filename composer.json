@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/Pagantis_Pagantis",
+    "name": "OpenMageModuleFostering\/Pagantis_Pagantis",
     "type": "magento-module",
     "license": "GPL",
     "homepage": "",
     "description": "Modulo de Magento para habilitar la pasarela de pago Pagantis en Magento.",
     "authors": [
-    {
-        "name": "Albert Fatsini",
-        "email": "afatsini@digitalorigin.com"
-    }
-],
+        {
+            "name": "Albert Fatsini",
+            "email": "afatsini@digitalorigin.com"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
